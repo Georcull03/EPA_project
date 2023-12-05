@@ -1,19 +1,25 @@
 import { Duration, Stack, StackProps } from 'aws-cdk-lib';
-import * as sns from 'aws-cdk-lib/aws-sns';
-import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
-import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origin from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 export class CdkPackageStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const queue = new sqs.Queue(this, 'CdkPackageQueue', {
-      visibilityTimeout: Duration.seconds(300)
+    const bucket = new s3.Bucket(this, 'epa-bucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
 
-    const topic = new sns.Topic(this, 'CdkPackageTopic');
+    const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
+      defaultBehavior: {
+        origin: new origin.S3Origin(bucket),
+      }});
 
-    topic.addSubscription(new subs.SqsSubscription(queue));
+    const api = new apigateway.RestApi(this, 'epa-api', {
+      restApiName: 'epa-api'
+    });
   }
 }
