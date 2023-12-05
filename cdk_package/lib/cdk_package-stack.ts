@@ -25,20 +25,6 @@ export class CdkPackageStack extends Stack {
             }
         });
 
-        const bucket = new s3.Bucket(this, 'epa-bucket', {
-            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        });
-
-        const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
-            defaultBehavior: {
-                origin: new origin.S3Origin(bucket),
-            }
-        });
-
-        const api = new apigateway.RestApi(this, 'epa-api', {
-            restApiName: 'epa-api'
-        });
-
         const getFunction = new lambda.Function(this, 'Function', {
             runtime: lambda.Runtime.PYTHON_3_9,
             handler: 'get_index.handler',
@@ -82,5 +68,34 @@ export class CdkPackageStack extends Stack {
         putFunction.addEnvironment("TABLE_NAME", table.tableName)
 
         table.grantReadWriteData(putFunction)
+
+        const bucket = new s3.Bucket(this, 'epa-bucket', {
+            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        });
+        
+        const oai = new cloudfront.OriginAccessIdentity(this, 'epa-oai');
+
+        bucket.grantRead(oai);
+
+        const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
+          defaultBehavior: { 
+            origin: new origin.S3Origin(bucket, {
+              originAccessIdentity: oai,
+          }),
+        }});
+
+        const api = new apigateway.RestApi(this, 'epa-api', {
+            restApiName: 'epa-api'
+        });
+
+        const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
+        const getlambdaintegration = new apigateway.LambdaIntegration(getFunction);
+        
+        const putresource = api.root.addResource("put");
+        putresource.addMethod("PUT", putlambdaintegration);
+        
+        const getresource = api.root.addResource("get");
+        getresource.addMethod("GET", getlambdaintegration);
+
     }
 }
