@@ -6,6 +6,9 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as cloudtrail from 'aws-cdk-lib/aws-cloudtrail'
+import * as sns from 'aws-cdk-lib/aws-sns'
+import * as logs from 'aws-cdk-lib/aws-logs';
 import * as path from 'path';
 import {Construct} from 'constructs';
 
@@ -97,5 +100,15 @@ export class CdkPackageStack extends Stack {
         const getresource = api.root.addResource("get");
         getresource.addMethod("GET", getlambdaintegration);
 
+
+        const topic = new sns.Topic(this, 'APIEvents')
+        const trail = new cloudtrail.Trail(this, 'CloudTrail', {
+            snsTopic: topic,
+            sendToCloudWatchLogs: true,
+            cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS,
+            trailName: 'Qwiz-Events'
+        })
+        };
+
     }
-}
+
