@@ -9,6 +9,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cloudtrail from 'aws-cdk-lib/aws-cloudtrail'
 import * as sns from 'aws-cdk-lib/aws-sns'
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as kms from 'aws-cdk-lib/aws-kms';
 import * as path from 'path';
 import {Construct} from 'constructs';
 
@@ -100,13 +101,18 @@ export class CdkPackageStack extends Stack {
         const getresource = api.root.addResource("get");
         getresource.addMethod("GET", getlambdaintegration);
 
+        const key = new kms.Key(this, 'cloudTrailKey', {
+            enableKeyRotation: true,
+          });
+
 
         const topic = new sns.Topic(this, 'APIEvents')
         const trail = new cloudtrail.Trail(this, 'CloudTrail', {
             snsTopic: topic,
             sendToCloudWatchLogs: true,
             cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS,
-            trailName: 'Qwiz-Events'
+            trailName: 'Qwiz-Events',
+            encryptionKey: key
         })
         };
 
