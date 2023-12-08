@@ -1,4 +1,4 @@
-import {Stack, StackProps} from 'aws-cdk-lib';
+import { Stack, StackProps } from 'aws-cdk-lib';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origin from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -10,13 +10,15 @@ import * as cloudtrail from 'aws-cdk-lib/aws-cloudtrail'
 import * as sns from 'aws-cdk-lib/aws-sns'
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as kms from 'aws-cdk-lib/aws-kms';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as path from 'path';
-import {Construct} from 'constructs';
+import { Construct } from 'constructs';
 
 export class CdkPackageStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
 
+        //  dynamo table
         const table = new ddb.Table(this, 'qwizgurus_interview_table', {
             tableName: 'qwizgurus_interview_table',
             partitionKey: {
@@ -29,6 +31,7 @@ export class CdkPackageStack extends Stack {
             }
         });
 
+        // lambda fetch interview question data
         const getFunction = new lambda.Function(this, 'Function', {
             runtime: lambda.Runtime.PYTHON_3_9,
             handler: 'get_index.handler',
@@ -51,6 +54,7 @@ export class CdkPackageStack extends Stack {
 
         table.grantReadWriteData(getFunction)
 
+        // lambda write interview question data
         const putFunction = new lambda.Function(this, 'putFunction', {
             runtime: lambda.Runtime.PYTHON_3_9,
             handler: 'index.handler',
@@ -76,17 +80,18 @@ export class CdkPackageStack extends Stack {
         const bucket = new s3.Bucket(this, 'epa-bucket', {
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         });
-        
+
         const oai = new cloudfront.OriginAccessIdentity(this, 'epa-oai');
 
         bucket.grantRead(oai);
 
         const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
-          defaultBehavior: { 
-            origin: new origin.S3Origin(bucket, {
-              originAccessIdentity: oai,
-          }),
-        }});
+            defaultBehavior: {
+                origin: new origin.S3Origin(bucket, {
+                    originAccessIdentity: oai,
+                }),
+            }
+        });
 
         const api = new apigateway.RestApi(this, 'epa-api', {
             restApiName: 'epa-api'
@@ -94,27 +99,59 @@ export class CdkPackageStack extends Stack {
 
         const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
         const getlambdaintegration = new apigateway.LambdaIntegration(getFunction);
-        
+
+        /*
+        commented out sections re cognito
+
+        this links pre-exisitng cognito user pool to a Cognito API Authorizer
+
+        for each api resource method, need to declare this as so:
+
+        {
+        //     authorizer: <api auth const name>,
+        //     authprizaionType: apigateway.AuthorizationType.COGNITO,
+        // }
+
+        */
+
+        // // cognito authZ for user pool already created
+
+        // const qwizUserPool = cognito.UserPool.fromUserPoolId(this, 'user_pool_id', 'eu-west-2_Gzt3IyXug')
+
+        // const apiAuth = new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
+        //     cognitoUserPools: [qwizUserPool]
+        // })
+
         const putresource = api.root.addResource("put");
         putresource.addMethod("PUT", putlambdaintegration);
-        
+
         const getresource = api.root.addResource("get");
-        getresource.addMethod("GET", getlambdaintegration);
+        // getresource.addMethod("GET", getlambdaintegration), {
+        //     authorizer: apiAuth,
+        //     authprizaionType: apigateway.AuthorizationType.COGNITO,
+        // }
+    };
 
-        const key = new kms.Key(this, 'cloudTrailKey', {
-            enableKeyRotation: true,
-          });
+
+    // cloud trail 
+    const key = new kms.Key(this, 'cloudTrailKey', {
+        enableKeyRotation: true,
+    });
 
 
-        const topic = new sns.Topic(this, 'APIEvents')
-        const trail = new cloudtrail.Trail(this, 'CloudTrail', {
-            snsTopic: topic,
-            sendToCloudWatchLogs: true,
-            cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS,
-            trailName: 'Qwiz-Events',
-            encryptionKey: key
-        })
-        };
-
+    const topic = new sns.Topic(this, 'APIEvents')
+    const trail = new cloudtrail.Trail(this, 'CloudTrail', {
+        snsTopic: topic,
+        sendToCloudWatchLogs: true,
+        cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS,
+        trailName: 'Qwiz-Events',
+        encryptionKey: key
+    });
+};
+    
+    private Authorizer(stack: Stack) {
+    new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
+        cognitoUserPools: [qwizUserPool]
     }
+}
 
