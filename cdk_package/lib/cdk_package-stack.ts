@@ -130,28 +130,28 @@ export class CdkPackageStack extends Stack {
         //     authorizer: apiAuth,
         //     authprizaionType: apigateway.AuthorizationType.COGNITO,
         // }
+
+        // cloud trail
+        const key = new kms.Key(this, 'cloudTrailKey', {
+            enableKeyRotation: true,
+        });
+
+
+        const topic = new sns.Topic(this, 'APIEvents')
+        const trail = new cloudtrail.Trail(this, 'CloudTrail', {
+            snsTopic: topic,
+            sendToCloudWatchLogs: true,
+            cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS,
+            trailName: 'Qwiz-Events',
+            encryptionKey: key
+        });
     };
-
-
-    // cloud trail 
-    const key = new kms.Key(this, 'cloudTrailKey', {
-        enableKeyRotation: true,
-    });
-
-
-    const topic = new sns.Topic(this, 'APIEvents')
-    const trail = new cloudtrail.Trail(this, 'CloudTrail', {
-        snsTopic: topic,
-        sendToCloudWatchLogs: true,
-        cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS,
-        trailName: 'Qwiz-Events',
-        encryptionKey: key
-    });
-};
-    
     private Authorizer(stack: Stack) {
-    new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
-        cognitoUserPools: [qwizUserPool]
+        new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
+            cognitoUserPools: [qwizUserPool] // Userpool not yet defined.
+        })
     }
 }
+
+
 
