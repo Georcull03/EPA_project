@@ -27,9 +27,10 @@ export class QwizPipelineStack extends cdk.Stack {
                     'ls',
                     'npm install',
                     'npm run build',
-                    'cdk synth'
+                    'cdk synth',
+                    'ls -al'
                 ],
-                primaryOutputDirectory: 'cdk_package/',
+                primaryOutputDirectory: 'cdk_package/cdk.out',
             })
         });
 
