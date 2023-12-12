@@ -17,15 +17,16 @@ export class QwizPipelineStack extends cdk.Stack {
                 input: CodePipelineSource.codeCommit(repo, 'main'),
                 installCommands: [
                     'npm install -g aws-cdk',
-                    'npm install -g aws-cdk-lib',
                     'npm install -g typescript',
-                    'npm i ts-node@latest'
                 ],
                 commands: [
                     'cdk --version',
+                    'tsc --version',
                     'pwd',
                     'cd cdk_package',
                     'ls',
+                    'npm install',
+                    'npm run build',
                     'cdk synth'
                 ],
                 primaryOutputDirectory: 'cdk_package/',
