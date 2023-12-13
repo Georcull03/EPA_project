@@ -10,6 +10,7 @@ import * as cloudtrail from 'aws-cdk-lib/aws-cloudtrail'
 import * as sns from 'aws-cdk-lib/aws-sns'
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as path from 'path';
+import * as route53 from 'aws-cdk-lib/aws-route53';
 import {Construct} from 'constructs';
 
 export class CdkPackageStack extends Stack {
@@ -107,8 +108,44 @@ export class CdkPackageStack extends Stack {
             sendToCloudWatchLogs: true,
             cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS,
             trailName: 'Qwiz-Events'
-        })
-        };
+        });
 
+        const domain_role = new iam.Role(this, "SuperNovaRole", {
+            roleName: "Nova-DO-NOT-DELETE",
+            assumedBy: new iam.ServicePrincipal("nova.aws.internal"),
+            managedPolicies: [
+                iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonRoute53FullAccess"),
+                iam.ManagedPolicy.fromAwsManagedPolicyName("SecurityAudit")
+            ]
+        });
+
+        // input your own domain name here. 
+        const hosted_zone_name = '{your alias}.people.aws.dev'
+
+        // looking up hosted zone already created to find the records
+        const my_hosted_zone = route53.HostedZone.fromLookup(this, 'hosted_zone', {
+            domainName: hosted_zone_name,
+        });
+
+        if (my_hosted_zone.hostedZoneNameServers){
+            new route53.NsRecord(this, 'epa-nsrecord', {
+                zone: my_hosted_zone,
+                recordName: hosted_zone_name,
+                values: [my_hosted_zone.hostedZoneNameServers]
+             })
+        }
+
+        new route53.ARecord(this, 'epa-arecord', {
+            zoneName: my_hosted_zone,
+
+        })
+
+        // appending the domian name to api url
+        // const qwuiz_api_zone_name = 'api' + hosted_zone_name
+
+ 
+        
+
+        };
     }
 
