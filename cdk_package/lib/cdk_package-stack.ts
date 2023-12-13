@@ -135,6 +135,7 @@ export class CdkPackageStack extends Stack {
         const key = new kms.Key(this, 'cloudTrailKey', {
             enableKeyRotation: true,
         });
+        key.grantEncrypt(new iam.ServicePrincipal('cloudtrail.amazonaws.com'));
 
 
         const topic = new sns.Topic(this, 'APIEvents')
