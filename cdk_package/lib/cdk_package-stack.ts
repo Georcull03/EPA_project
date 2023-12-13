@@ -1,4 +1,4 @@
-import {Stack, StackProps} from 'aws-cdk-lib';
+import { Stack, StackProps, aws_route53_targets } from 'aws-cdk-lib';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origin from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -9,14 +9,20 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cloudtrail from 'aws-cdk-lib/aws-cloudtrail'
 import * as sns from 'aws-cdk-lib/aws-sns'
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as kms from 'aws-cdk-lib/aws-kms';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as path from 'path';
 import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as target from 'aws-cdk-lib/aws-route53-targets';
+import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import {Construct} from 'constructs';
+import { TargetTrackingScalingPolicy } from 'aws-cdk-lib/aws-applicationautoscaling';
 
 export class CdkPackageStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
 
+        //  dynamo table
         const table = new ddb.Table(this, 'qwizgurus_interview_table', {
             tableName: 'qwizgurus_interview_table',
             partitionKey: {
@@ -29,6 +35,7 @@ export class CdkPackageStack extends Stack {
             }
         });
 
+        // lambda fetch interview question data
         const getFunction = new lambda.Function(this, 'Function', {
             runtime: lambda.Runtime.PYTHON_3_9,
             handler: 'get_index.handler',
@@ -51,6 +58,7 @@ export class CdkPackageStack extends Stack {
 
         table.grantReadWriteData(getFunction)
 
+        // lambda write interview question data
         const putFunction = new lambda.Function(this, 'putFunction', {
             runtime: lambda.Runtime.PYTHON_3_9,
             handler: 'index.handler',
@@ -76,17 +84,18 @@ export class CdkPackageStack extends Stack {
         const bucket = new s3.Bucket(this, 'epa-bucket', {
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         });
-        
+
         const oai = new cloudfront.OriginAccessIdentity(this, 'epa-oai');
 
         bucket.grantRead(oai);
 
         const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
-          defaultBehavior: { 
-            origin: new origin.S3Origin(bucket, {
-              originAccessIdentity: oai,
-          }),
-        }});
+            defaultBehavior: {
+                origin: new origin.S3Origin(bucket, {
+                    originAccessIdentity: oai,
+                }),
+            }
+        });
 
         const api = new apigateway.RestApi(this, 'epa-api', {
             restApiName: 'epa-api'
@@ -94,21 +103,6 @@ export class CdkPackageStack extends Stack {
 
         const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
         const getlambdaintegration = new apigateway.LambdaIntegration(getFunction);
-        
-        const putresource = api.root.addResource("put");
-        putresource.addMethod("PUT", putlambdaintegration);
-        
-        const getresource = api.root.addResource("get");
-        getresource.addMethod("GET", getlambdaintegration);
-
-
-        const topic = new sns.Topic(this, 'APIEvents')
-        const trail = new cloudtrail.Trail(this, 'CloudTrail', {
-            snsTopic: topic,
-            sendToCloudWatchLogs: true,
-            cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS,
-            trailName: 'Qwiz-Events'
-        });
 
         const domain_role = new iam.Role(this, "SuperNovaRole", {
             roleName: "Nova-DO-NOT-DELETE",
@@ -122,30 +116,136 @@ export class CdkPackageStack extends Stack {
         // input your own domain name here. 
         const hosted_zone_name = '{your alias}.people.aws.dev'
 
+        // constructing the api url with the domain name
+        const qwuiz_api_zone_name = 'api.' + hosted_zone_name
+
         // looking up hosted zone already created to find the records
         const my_hosted_zone = route53.HostedZone.fromLookup(this, 'hosted_zone', {
             domainName: hosted_zone_name,
         });
 
+        // creating a zone for the sub domain for the api
+        const api_hosted_sub_zone = new route53.PublicHostedZone(this, 'api_sub', {
+            zoneName: qwuiz_api_zone_name,
+        });
+
+        // NS record for the api hosted zone in the parent zone
         if (my_hosted_zone.hostedZoneNameServers){
             new route53.NsRecord(this, 'epa-nsrecord', {
                 zone: my_hosted_zone,
-                recordName: hosted_zone_name,
-                values: [my_hosted_zone.hostedZoneNameServers]
-             })
-        }
+                recordName: qwuiz_api_zone_name,
+                values: [api_hosted_sub_zone.hostedZoneNameServers ? api_hosted_sub_zone.hostedZoneNameServers[0] :'undefined']
+        })};
 
+        // SSL certificate
+        const ssl_cert = new acm.Certificate(this, 'certificate', {
+            domainName: qwuiz_api_zone_name,
+            certificateName: 'qwiz_cert_ssl',
+            validation: acm.CertificateValidation.fromDns(api_hosted_sub_zone)
+        });
+
+        // adding the domain name to the api gateway
+        api.addDomainName('api_domain', {
+            domainName: qwuiz_api_zone_name,
+            certificate: ssl_cert,
+        }); 
+
+        // creating the a record for IPV4
         new route53.ARecord(this, 'epa-arecord', {
-            zoneName: my_hosted_zone,
+            zone: api_hosted_sub_zone,
+            recordName: qwuiz_api_zone_name,
+            target: route53.RecordTarget.fromAlias(new target.ApiGateway(api))
+        });
 
+        // creating the a record for IPV6
+        new route53.AaaaRecord(this, 'epa-arecord', {
+            zone: api_hosted_sub_zone,
+            recordName: qwuiz_api_zone_name,
+            target: route53.RecordTarget.fromAlias(new target.ApiGateway(api))
+        });
+
+        // creating text records for security
+        // values provided state that no email addresses/IPs are allowed to send emails from this domain
+        const txt_records_spf = new route53.TxtRecord(this, 'api_txt_record', {
+            zone: api_hosted_sub_zone,
+            recordName: qwuiz_api_zone_name,
+            values: ['v=spf1 -all'],
+            comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
+        });
+
+        // creating text records for security
+        // values provided aids the spf records to mitigate spoofing 
+        const txt_records_dmarc = new route53.TxtRecord(this, 'api_txt_record', {
+            zone: api_hosted_sub_zone,
+            recordName: '_dmarc.' + qwuiz_api_zone_name,
+            values: ['v=DMARC1; p=reject; rua=mailto:report@dmarc.amazon.com; ruf=mailto:report@dmarc.amazon.com'],
+            comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
+        });
+
+        // constructing the website url using the parent domain name
+        const qwuiz_website_zone_name = 'put in your website name' + hosted_zone_name
+
+        // create a zone for the sub domain for the website
+        const website_hosted_sub_zone = new route53.PublicHostedZone(this, 'website_sub', {
+            zoneName: qwuiz_website_zone_name
+        });
+
+        // NS record for the api hosted zone in the parent zone
+        if (my_hosted_zone.hostedZoneNameServers){
+            new route53.NsRecord(this, 'epa-nsrecord', {
+                zone: my_hosted_zone,
+                recordName: qwuiz_website_zone_name,
+                values: [api_hosted_sub_zone.hostedZoneNameServers ? api_hosted_sub_zone.hostedZoneNameServers[0] :'undefined']
+        })};
+
+
+
+
+
+        /*
+        commented out sections re cognito
+
+        this links pre-exisitng cognito user pool to a Cognito API Authorizer
+
+        for each api resource method, need to declare this as so:
+
+        {
+        //     authorizer: <api auth const name>,
+        //     authprizaionType: apigateway.AuthorizationType.COGNITO,
+        // }
+
+        */
+
+        // // cognito authZ for user pool already created
+
+        // const qwizUserPool = cognito.UserPool.fromUserPoolId(this, 'user_pool_id', 'eu-west-2_Gzt3IyXug')
+
+        // const apiAuth = new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
+        //     cognitoUserPools: [qwizUserPool]
+        // })
+
+        const putresource = api.root.addResource("put");
+        putresource.addMethod("PUT", putlambdaintegration);
+
+        const getresource = api.root.addResource("get");
+        // getresource.addMethod("GET", getlambdaintegration), {
+        //     authorizer: apiAuth,
+        //     authprizaionType: apigateway.AuthorizationType.COGNITO,
+        // }
+
+        // cloud trail
+        const key = new kms.Key(this, 'cloudTrailKey', {
+            enableKeyRotation: true,
+        });
+
+
+        const topic = new sns.Topic(this, 'APIEvents')
+        const trail = new cloudtrail.Trail(this, 'CloudTrail', {
+            snsTopic: topic,
+            sendToCloudWatchLogs: true,
+            cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS,
+            trailName: 'Qwiz-Events'
         })
-
-        // appending the domian name to api url
-        // const qwuiz_api_zone_name = 'api' + hosted_zone_name
-
- 
-        
-
         };
-    }
 
+    }
