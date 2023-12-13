@@ -16,7 +16,6 @@ import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as target from 'aws-cdk-lib/aws-route53-targets';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import {Construct} from 'constructs';
-import { TargetTrackingScalingPolicy } from 'aws-cdk-lib/aws-applicationautoscaling';
 
 export class CdkPackageStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -81,22 +80,6 @@ export class CdkPackageStack extends Stack {
 
         table.grantReadWriteData(putFunction)
 
-        const bucket = new s3.Bucket(this, 'epa-bucket', {
-            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        });
-
-        const oai = new cloudfront.OriginAccessIdentity(this, 'epa-oai');
-
-        bucket.grantRead(oai);
-
-        const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
-            defaultBehavior: {
-                origin: new origin.S3Origin(bucket, {
-                    originAccessIdentity: oai,
-                }),
-            }
-        });
-
         const api = new apigateway.RestApi(this, 'epa-api', {
             restApiName: 'epa-api'
         });
@@ -104,7 +87,7 @@ export class CdkPackageStack extends Stack {
         const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
         const getlambdaintegration = new apigateway.LambdaIntegration(getFunction);
 
-        const domain_role = new iam.Role(this, "SuperNovaRole", {
+        new iam.Role(this, "SuperNovaRole", {
             roleName: "Nova-DO-NOT-DELETE",
             assumedBy: new iam.ServicePrincipal("nova.aws.internal"),
             managedPolicies: [
@@ -114,7 +97,7 @@ export class CdkPackageStack extends Stack {
         });
 
         // input your own domain name here. 
-        const hosted_zone_name = '{your alias}.people.aws.dev'
+        const hosted_zone_name = 'alias-here.people.aws.dev'
 
         // constructing the api url with the domain name
         const qwuiz_api_zone_name = 'api.' + hosted_zone_name
@@ -130,35 +113,35 @@ export class CdkPackageStack extends Stack {
         });
 
         // NS record for the api hosted zone in the parent zone
-        if (my_hosted_zone.hostedZoneNameServers){
-            new route53.NsRecord(this, 'epa-nsrecord', {
+        if (api_hosted_sub_zone.hostedZoneNameServers){
+            new route53.NsRecord(this, 'epa_nsrecord_api', {
                 zone: my_hosted_zone,
                 recordName: qwuiz_api_zone_name,
-                values: [api_hosted_sub_zone.hostedZoneNameServers ? api_hosted_sub_zone.hostedZoneNameServers[0] :'undefined']
+                values: api_hosted_sub_zone.hostedZoneNameServers as string[]
         })};
 
         // SSL certificate
-        const ssl_cert = new acm.Certificate(this, 'certificate', {
+        const ssl_cert_api = new acm.Certificate(this, 'certificate_api', {
             domainName: qwuiz_api_zone_name,
-            certificateName: 'qwiz_cert_ssl',
+            certificateName: 'qwiz_cert_ssl_api',
             validation: acm.CertificateValidation.fromDns(api_hosted_sub_zone)
         });
 
         // adding the domain name to the api gateway
         api.addDomainName('api_domain', {
             domainName: qwuiz_api_zone_name,
-            certificate: ssl_cert,
+            certificate: ssl_cert_api,
         }); 
 
-        // creating the a record for IPV4
-        new route53.ARecord(this, 'epa-arecord', {
+        // creating the a record for IPV4 for the api domain
+        new route53.ARecord(this, 'epa_arecord_api', {
             zone: api_hosted_sub_zone,
             recordName: qwuiz_api_zone_name,
             target: route53.RecordTarget.fromAlias(new target.ApiGateway(api))
         });
 
-        // creating the a record for IPV6
-        new route53.AaaaRecord(this, 'epa-arecord', {
+        // creating the a record for IPV6 for the api domain
+        new route53.AaaaRecord(this, 'epa_Aaaarecord_api', {
             zone: api_hosted_sub_zone,
             recordName: qwuiz_api_zone_name,
             target: route53.RecordTarget.fromAlias(new target.ApiGateway(api))
@@ -166,7 +149,7 @@ export class CdkPackageStack extends Stack {
 
         // creating text records for security
         // values provided state that no email addresses/IPs are allowed to send emails from this domain
-        const txt_records_spf = new route53.TxtRecord(this, 'api_txt_record', {
+        new route53.TxtRecord(this, 'api_domain_txt_record_spf', {
             zone: api_hosted_sub_zone,
             recordName: qwuiz_api_zone_name,
             values: ['v=spf1 -all'],
@@ -175,30 +158,87 @@ export class CdkPackageStack extends Stack {
 
         // creating text records for security
         // values provided aids the spf records to mitigate spoofing 
-        const txt_records_dmarc = new route53.TxtRecord(this, 'api_txt_record', {
+        new route53.TxtRecord(this, 'api_domain_txt_record', {
             zone: api_hosted_sub_zone,
             recordName: '_dmarc.' + qwuiz_api_zone_name,
             values: ['v=DMARC1; p=reject; rua=mailto:report@dmarc.amazon.com; ruf=mailto:report@dmarc.amazon.com'],
             comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
         });
 
-        // constructing the website url using the parent domain name
-        const qwuiz_website_zone_name = 'put in your website name' + hosted_zone_name
+        // constructing the distribution url using the parent domain name
+        const qwuiz_distribution_zone_name = 'put-in-your-website-name' + hosted_zone_name
 
-        // create a zone for the sub domain for the website
-        const website_hosted_sub_zone = new route53.PublicHostedZone(this, 'website_sub', {
-            zoneName: qwuiz_website_zone_name
+        // create a zone for the sub domain for the distribution
+        const distribution_hosted_sub_zone = new route53.PublicHostedZone(this, 'distribution_sub', {
+            zoneName: qwuiz_distribution_zone_name
         });
 
-        // NS record for the api hosted zone in the parent zone
-        if (my_hosted_zone.hostedZoneNameServers){
-            new route53.NsRecord(this, 'epa-nsrecord', {
+        // NS record for the distribution hosted zone in the parent zone
+        if (distribution_hosted_sub_zone.hostedZoneNameServers){
+            new route53.NsRecord(this, 'epa_nsrecord_distribution', {
                 zone: my_hosted_zone,
-                recordName: qwuiz_website_zone_name,
-                values: [api_hosted_sub_zone.hostedZoneNameServers ? api_hosted_sub_zone.hostedZoneNameServers[0] :'undefined']
+                recordName: qwuiz_distribution_zone_name,
+                values: distribution_hosted_sub_zone.hostedZoneNameServers as string[]
         })};
 
+        // SSL certificate for distribution domain
+        const ssl_cert_distribution = new acm.Certificate(this, 'certificate_distribution', {
+            domainName: qwuiz_distribution_zone_name,
+            certificateName: 'qwiz_cert_ssl_distribution',
+            validation: acm.CertificateValidation.fromDns(distribution_hosted_sub_zone)
+        });
 
+        // bucket created to host the cloudscape code for the website
+        const bucket = new s3.Bucket(this, 'epa-bucket', {
+            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        });
+
+        const oai = new cloudfront.OriginAccessIdentity(this, 'epa-oai');
+
+        bucket.grantRead(oai);
+
+        const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
+            defaultBehavior: {
+                origin: new origin.S3Origin(bucket, {
+                    originAccessIdentity: oai,
+                }),
+            },
+            domainNames: [qwuiz_distribution_zone_name],
+            certificate: ssl_cert_distribution,
+            enableIpv6: true,
+        });
+
+        // creating the a record for IPV4 for the distribution domain
+        new route53.ARecord(this, 'epa_arecord_distribution', {
+            zone: distribution_hosted_sub_zone,
+            recordName: qwuiz_distribution_zone_name,
+            target: route53.RecordTarget.fromAlias(new target.CloudFrontTarget(distribution))
+        });
+
+        // creating the a record for IPV6 for the distribution domain
+        new route53.AaaaRecord(this, 'epa_Aaaarecord_website', {
+            zone: distribution_hosted_sub_zone,
+            recordName: qwuiz_distribution_zone_name,
+            target: route53.RecordTarget.fromAlias(new target.CloudFrontTarget(distribution))
+        });
+
+        // creating text records for security
+        // values provided state that no email addresses/IPs are allowed to send emails from this domain
+        new route53.TxtRecord(this, 'distribution_domain_txt_record_spf', {
+            zone: distribution_hosted_sub_zone,
+            recordName: qwuiz_distribution_zone_name,
+            values: ['v=spf1 -all'],
+            comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
+        });
+
+        // creating text records for security
+        // values provided aids the spf records to mitigate spoofing 
+        new route53.TxtRecord(this, 'distribution_domain_txt_record', {
+            zone: distribution_hosted_sub_zone,
+            recordName: '_dmarc.' + qwuiz_distribution_zone_name,
+            values: ['v=DMARC1; p=reject; rua=mailto:report@dmarc.amazon.com; ruf=mailto:report@dmarc.amazon.com'],
+            comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
+        });
 
 
 
