@@ -38,11 +38,11 @@ export class CdkPackageStack extends Stack {
             code: lambda.Code.fromAsset(path.join(__dirname, 'lambdaHandler')),
         });
 
-        const version = getFunction.currentVersion;
-        const alias = new lambda.Alias(this, 'GetFunctionLambdaAlias', {
-            aliasName: 'Prod',
-            version,
-        });
+        // const version = getFunction.currentVersion;
+        // const alias = new lambda.Alias(this, 'GetFunctionLambdaAlias', {
+        //     aliasName: 'Prod',
+        //     version,
+        // });
 
         if (getFunction.role === null) {
             throw new Error('Lambda function role cannot be null');
@@ -61,11 +61,11 @@ export class CdkPackageStack extends Stack {
             code: lambda.Code.fromAsset(path.join(__dirname, 'put-lambda-handler')),
         });
 
-        const put_version = getFunction.currentVersion;
-        const put_alias = new lambda.Alias(this, 'PutFunctionLambdaAlias', {
-            aliasName: 'Prod',
-            version,
-        });
+        // const put_version = getFunction.currentVersion;
+        // const put_alias = new lambda.Alias(this, 'PutFunctionLambdaAlias', {
+        //     aliasName: 'Prod',
+        //     version,
+        // });
 
         if (putFunction.role === null) {
             throw new Error('Lambda function role cannot be null');
