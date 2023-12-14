@@ -58,33 +58,33 @@ export class CdkPackageStack extends Stack {
         table.grantReadWriteData(getFunction)
 
         // lambda write interview question data
-        const putFunction = new lambda.Function(this, 'putFunction', {
+        const postFunction = new lambda.Function(this, 'postFunction', {
             runtime: lambda.Runtime.PYTHON_3_9,
             handler: 'index.handler',
-            code: lambda.Code.fromAsset(path.join(__dirname, 'put-lambda-handler')),
+            code: lambda.Code.fromAsset(path.join(__dirname, 'post-lambda-handler')),
         });
 
-        const put_version = getFunction.currentVersion;
-        const put_alias = new lambda.Alias(this, 'PutFunctionLambdaAlias', {
+        const post_version = getFunction.currentVersion;
+        const put_alias = new lambda.Alias(this, 'PostFunctionLambdaAlias', {
             aliasName: 'Prod',
             version,
         });
 
-        if (putFunction.role === null) {
+        if (postFunction.role === null) {
             throw new Error('Lambda function role cannot be null');
         }
 
-        putFunction.role?.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'))
+        postFunction.role?.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'))
 
-        putFunction.addEnvironment("TABLE_NAME", table.tableName)
+        postFunction.addEnvironment("TABLE_NAME", table.tableName)
 
-        table.grantReadWriteData(putFunction)
+        table.grantReadWriteData(postFunction)
 
         const api = new apigateway.RestApi(this, 'epa-api', {
             restApiName: 'epa-api'
         });
 
-        const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
+        const postlambdaintegration = new apigateway.LambdaIntegration(postFunction);
         const getlambdaintegration = new apigateway.LambdaIntegration(getFunction);
 
         new iam.Role(this, "SuperNovaRole", {
@@ -264,8 +264,8 @@ export class CdkPackageStack extends Stack {
         //     cognitoUserPools: [qwizUserPool]
         // })
 
-        const putresource = api.root.addResource("put");
-        putresource.addMethod("PUT", putlambdaintegration);
+        const postresource = api.root.addResource("post");
+        postresource.addMethod("POST", postlambdaintegration);
 
         const getresource = api.root.addResource("get");
         // getresource.addMethod("GET", getlambdaintegration), {
