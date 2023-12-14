@@ -26,18 +26,18 @@ export class CdkPackageStack extends Stack {
         const table = new ddb.Table(this, 'qwizgurus_interview_table', {
             tableName: 'qwizgurus_interview_table',
             partitionKey: {
-                name: 'Job Level',
+                name: 'level',
                 type: ddb.AttributeType.STRING,
             },
             sortKey: {
-                name: 'Question',
+                name: 'question',
                 type: ddb.AttributeType.STRING
             }
         });
 
         // lambda fetch interview question data
         const getFunction = new lambda.Function(this, 'Function', {
-            runtime: lambda.Runtime.PYTHON_3_9,
+            runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'get_index.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, 'lambdaHandler')),
         });
@@ -60,7 +60,7 @@ export class CdkPackageStack extends Stack {
 
         // lambda write interview question data
         const putFunction = new lambda.Function(this, 'postFunction', {
-            runtime: lambda.Runtime.PYTHON_3_9,
+            runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'index.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, 'post-lambda-handler')),
         });
@@ -307,16 +307,16 @@ export class CdkPackageStack extends Stack {
             encryptionKey: key
         });
     };
-    private Authorizer(stack: Stack) {
-        new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
-            cognitoUserPools: [qwizUserPool] // Userpool not yet defined.
-        })
-    }
-}
-
     // private Authorizer(stack: Stack) {
     //     new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
     //         cognitoUserPools: [qwizUserPool] // Userpool not yet defined.
     //     })
     // }
 };
+
+    // private Authorizer(stack: Stack) {
+    //     new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
+    //         cognitoUserPools: [qwizUserPool] // Userpool not yet defined.
+    //     })
+    // }
+
