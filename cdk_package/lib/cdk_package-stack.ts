@@ -37,7 +37,7 @@ export class CdkPackageStack extends Stack {
 
         // lambda fetch interview question data
         const getFunction = new lambda.Function(this, 'Function', {
-            runtime: lambda.Runtime.NODEJS_20_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'get_index.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, 'lambdaHandler')),
         });
@@ -60,7 +60,7 @@ export class CdkPackageStack extends Stack {
 
         // lambda write interview question data
         const putFunction = new lambda.Function(this, 'postFunction', {
-            runtime: lambda.Runtime.NODEJS_20_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'index.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, 'post-lambda-handler')),
         });
