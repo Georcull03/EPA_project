@@ -307,6 +307,12 @@ export class CdkPackageStack extends Stack {
             encryptionKey: key
         });
     };
+    private Authorizer(stack: Stack) {
+        new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
+            cognitoUserPools: [qwizUserPool] // Userpool not yet defined.
+        })
+    }
+}
 
     // private Authorizer(stack: Stack) {
     //     new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
