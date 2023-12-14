@@ -294,6 +294,7 @@ export class CdkPackageStack extends Stack {
             enableKeyRotation: true,
         });
 
+        key.grantEncrypt(new iam.ServicePrincipal('cloudtrail.amazonaws.com'));
 
         const topic = new sns.Topic(this, 'APIEvents')
         const trail = new cloudtrail.Trail(this, 'CloudTrail', {
@@ -304,9 +305,10 @@ export class CdkPackageStack extends Stack {
             encryptionKey: key
         });
     };
+
     // private Authorizer(stack: Stack) {
     //     new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
     //         cognitoUserPools: [qwizUserPool] // Userpool not yet defined.
     //     })
     // }
-}
+};
