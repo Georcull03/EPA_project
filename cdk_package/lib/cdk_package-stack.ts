@@ -1,4 +1,4 @@
-import { Stack, StackProps, aws_route53_targets } from 'aws-cdk-lib';
+import { Stack, StackProps } from 'aws-cdk-lib';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origin from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -15,7 +15,8 @@ import * as path from 'path';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as target from 'aws-cdk-lib/aws-route53-targets';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
-import {Construct} from 'constructs';
+import { Construct } from 'constructs';
+import { Rule } from 'aws-cdk-lib/aws-events';
 
 export class CdkPackageStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -41,11 +42,11 @@ export class CdkPackageStack extends Stack {
             code: lambda.Code.fromAsset(path.join(__dirname, 'lambdaHandler')),
         });
 
-        const version = getFunction.currentVersion;
-        const alias = new lambda.Alias(this, 'GetFunctionLambdaAlias', {
-            aliasName: 'Prod',
-            version,
-        });
+        // const version = getFunction.currentVersion;
+        // const alias = new lambda.Alias(this, 'GetFunctionLambdaAlias', {
+        //     aliasName: 'Prod',
+        //     version,
+        // });
 
         if (getFunction.role === null) {
             throw new Error('Lambda function role cannot be null');
@@ -64,11 +65,11 @@ export class CdkPackageStack extends Stack {
             code: lambda.Code.fromAsset(path.join(__dirname, 'post-lambda-handler')),
         });
 
-        const post_version = getFunction.currentVersion;
-        const put_alias = new lambda.Alias(this, 'PostFunctionLambdaAlias', {
-            aliasName: 'Prod',
-            version,
-        });
+        //const post_version = getFunction.currentVersion;
+        //const put_alias = new lambda.Alias(this, 'PostFunctionLambdaAlias', {
+        //    aliasName: 'Prod',
+        //    version,
+        //});
 
         if (postFunction.role === null) {
             throw new Error('Lambda function role cannot be null');
@@ -80,8 +81,28 @@ export class CdkPackageStack extends Stack {
 
         table.grantReadWriteData(postFunction)
 
+        const bucket = new s3.Bucket(this, 'epa-bucket', {
+            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        });
+
+        // bucket.addCorsRule({
+        //     allowedOrigins: ["https://qwiz.YOUR_ALIAS.people.aws.dev", "https://qwiz-api.YOUR_ALIAS.people.aws.dev"],
+        //     allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.POST],
+        //     allowedHeaders: ["*"],
+        //     exposedHeaders: ["Access-Control-Allow-Origin"]
+        // })
+
+        const oai = new cloudfront.OriginAccessIdentity(this, 'epa-oai');
+
+        bucket.grantRead(oai);
+
         const api = new apigateway.RestApi(this, 'epa-api', {
-            restApiName: 'epa-api'
+            restApiName: 'epa-api',
+            // defaultCorsPreflightOptions: {
+            //     allowOrigins: ["https://qwiz.YOUR_ALIAS.people.aws.dev"],
+            //     allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
+            //     allowMethods: ["GET", "POST"]
+            // }
         });
 
         const postlambdaintegration = new apigateway.LambdaIntegration(postFunction);
@@ -188,21 +209,21 @@ export class CdkPackageStack extends Stack {
 
         //bucket.grantRead(oai);
 
-        //const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
-        //    defaultBehavior: {
-        //        origin: new origin.S3Origin(bucket, {
-        //           originAccessIdentity: oai,
-        //        }),
+        const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
+            defaultBehavior: {
+               origin: new origin.S3Origin(bucket, {
+                   originAccessIdentity: oai,
+                }),
         //        originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
         //        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         //        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
         //        responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
         //        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
-        //    },
+            },
         //    domainNames: [qwuiz_distribution_zone_name],
         //    certificate: ssl_cert_distribution,
         //    enableIpv6: true,
-        //});
+        });
 
         // creating the a record for IPV4 for the distribution domain
         //new route53.ARecord(this, 'epa_arecord_distribution', {
@@ -279,8 +300,13 @@ export class CdkPackageStack extends Stack {
             snsTopic: topic,
             sendToCloudWatchLogs: true,
             cloudWatchLogsRetention: logs.RetentionDays.FOUR_MONTHS,
-            trailName: 'Qwiz-Events'
-        })
-        };
-
-    }
+            trailName: 'Qwiz-Events',
+            encryptionKey: key
+        });
+    };
+    // private Authorizer(stack: Stack) {
+    //     new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
+    //         cognitoUserPools: [qwizUserPool] // Userpool not yet defined.
+    //     })
+    // }
+}
