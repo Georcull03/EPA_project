@@ -13,6 +13,7 @@ import * as kms from 'aws-cdk-lib/aws-kms';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as path from 'path';
 import { Construct } from 'constructs';
+import { Rule } from 'aws-cdk-lib/aws-events';
 
 export class CdkPackageStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -81,6 +82,13 @@ export class CdkPackageStack extends Stack {
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         });
 
+        // bucket.addCorsRule({
+        //     allowedOrigins: ["https://qwiz.YOUR_ALIAS.people.aws.dev", "https://qwiz-api.YOUR_ALIAS.people.aws.dev"],
+        //     allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.POST],
+        //     allowedHeaders: ["*"],
+        //     exposedHeaders: ["Access-Control-Allow-Origin"]
+        // })
+
         const oai = new cloudfront.OriginAccessIdentity(this, 'epa-oai');
 
         bucket.grantRead(oai);
@@ -94,7 +102,12 @@ export class CdkPackageStack extends Stack {
         });
 
         const api = new apigateway.RestApi(this, 'epa-api', {
-            restApiName: 'epa-api'
+            restApiName: 'epa-api',
+            // defaultCorsPreflightOptions: {
+            //     allowOrigins: ["https://qwiz.YOUR_ALIAS.people.aws.dev"],
+            //     allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
+            //     allowMethods: ["GET", "POST"]
+            // }
         });
 
         const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
