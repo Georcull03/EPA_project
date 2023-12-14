@@ -59,7 +59,7 @@ export class CdkPackageStack extends Stack {
         table.grantReadWriteData(getFunction)
 
         // lambda write interview question data
-        const postFunction = new lambda.Function(this, 'postFunction', {
+        const putFunction = new lambda.Function(this, 'postFunction', {
             runtime: lambda.Runtime.PYTHON_3_9,
             handler: 'index.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, 'post-lambda-handler')),
@@ -71,15 +71,15 @@ export class CdkPackageStack extends Stack {
         //    version,
         //});
 
-        if (postFunction.role === null) {
+        if (putFunction.role === null) {
             throw new Error('Lambda function role cannot be null');
         }
 
-        postFunction.role?.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'))
+        putFunction.role?.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'))
 
-        postFunction.addEnvironment("TABLE_NAME", table.tableName)
+        putFunction.addEnvironment("TABLE_NAME", table.tableName)
 
-        table.grantReadWriteData(postFunction)
+        table.grantReadWriteData(putFunction)
 
         const bucket = new s3.Bucket(this, 'epa-bucket', {
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -105,7 +105,7 @@ export class CdkPackageStack extends Stack {
             // }
         });
 
-        const postlambdaintegration = new apigateway.LambdaIntegration(postFunction);
+        const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
         const getlambdaintegration = new apigateway.LambdaIntegration(getFunction);
 
         // input your own domain name here. 
@@ -211,18 +211,18 @@ export class CdkPackageStack extends Stack {
 
         const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
             defaultBehavior: {
-               origin: new origin.S3Origin(bucket, {
-                   originAccessIdentity: oai,
+                origin: new origin.S3Origin(bucket, {
+                    originAccessIdentity: oai,
                 }),
-        //        originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
-        //        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        //        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-        //        responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
-        //        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+                //        originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
+                //        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                //        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+                //        responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
+                //        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
             },
-        //    domainNames: [qwuiz_distribution_zone_name],
-        //    certificate: ssl_cert_distribution,
-        //    enableIpv6: true,
+            //    domainNames: [qwuiz_distribution_zone_name],
+            //    certificate: ssl_cert_distribution,
+            //    enableIpv6: true,
         });
 
         // creating the a record for IPV4 for the distribution domain
@@ -280,11 +280,13 @@ export class CdkPackageStack extends Stack {
         //     cognitoUserPools: [qwizUserPool]
         // })
 
-        const postresource = api.root.addResource("post");
-        postresource.addMethod("POST", postlambdaintegration);
+        const putresource = api.root.addResource("put-question");
+        putresource.addMethod("PUT", putlambdaintegration);
 
-        const getresource = api.root.addResource("get");
-        // getresource.addMethod("GET", getlambdaintegration), {
+        const getresource = api.root.addResource("question");
+        getresource.addMethod("GET", getlambdaintegration);
+
+        // {
         //     authorizer: apiAuth,
         //     authprizaionType: apigateway.AuthorizationType.COGNITO,
         // }
