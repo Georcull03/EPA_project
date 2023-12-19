@@ -1,8 +1,9 @@
-import {Construct} from 'constructs';
-import {AlphaStage} from './pipeline-alpha-stage';
+import { Construct } from 'constructs';
+import { AlphaStage } from './pipeline-alpha-stage';
+import { BetaStage } from "./pipeline-beta-stage";
 import * as cdk from 'aws-cdk-lib';
 import * as codecommit from 'aws-cdk-lib/aws-codecommit';
-import {CodeBuildStep, CodePipeline, CodePipelineSource} from "aws-cdk-lib/pipelines";
+import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from "aws-cdk-lib/pipelines";
 
 export class QwizPipelineStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -34,8 +35,28 @@ export class QwizPipelineStack extends cdk.Stack {
             })
         });
 
-        pipeline.addStage(new AlphaStage(this, "Alpha", {
+        const alpha_stage = pipeline.addStage(new AlphaStage(this, "Alpha", {
             env: { account: '177325120061', region: 'eu-west-2'}
-        }))
+        }));
+
+        alpha_stage.addPost(new ShellStep('Validate', {
+            input: CodePipelineSource.codeCommit(repo, 'main'),
+            commands: [
+                'cd cdk_package/test',
+                'npm run test'
+            ]
+        }));
+
+        const beta_stage = pipeline.addStage(new BetaStage(this, "Beta", {
+            env: { account: '042538542222', region: 'eu-west-2'}
+        }));
+
+        beta_stage.addPost(new ShellStep('Validate', {
+            input: CodePipelineSource.codeCommit(repo, 'main'),
+            commands: [
+                'cd cdk_package/test',
+                'npm run test'
+            ]
+        }));
     }
 }
