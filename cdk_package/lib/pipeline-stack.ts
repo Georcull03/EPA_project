@@ -52,7 +52,7 @@ export class QwizPipelineStack extends cdk.Stack {
         }));
 
         beta_stage.addPost(new ShellStep('Validate', {
-            input: CodePipelineSource.codeCommit(repo, 'main'),
+            input: pipeline.synth.primaryOutput,
             commands: [
                 'cd cdk_package/test',
                 'npm run test'
