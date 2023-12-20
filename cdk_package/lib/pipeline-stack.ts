@@ -1,6 +1,7 @@
 import { Construct } from 'constructs';
 import { AlphaStage } from './pipeline-alpha-stage';
 import { BetaStage } from "./pipeline-beta-stage";
+import { ProdStage } from "./pipeline-prod-stage";
 import * as cdk from 'aws-cdk-lib';
 import * as codecommit from 'aws-cdk-lib/aws-codecommit';
 import { CodeBuildStep, CodePipeline, CodePipelineSource } from "aws-cdk-lib/pipelines";
@@ -42,6 +43,10 @@ export class QwizPipelineStack extends cdk.Stack {
 
         const beta_stage = pipeline.addStage(new BetaStage(this, "Beta", {
             env: { account: '602709950483', region: 'us-west-1'}
+        }));
+
+        const prod_stage = pipeline.addStage(new ProdStage(this, "Prod", {
+            env: { account: '929483735452', region: 'us-west-1'}
         }));
     }
 }
