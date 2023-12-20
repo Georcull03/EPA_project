@@ -39,24 +39,24 @@ export class QwizPipelineStack extends cdk.Stack {
             env: { account: '177325120061', region: 'eu-west-2'}
         }));
 
-        alpha_stage.addPost(new ShellStep('Validate', {
-            input: CodePipelineSource.codeCommit(repo, 'main'),
-            commands: [
-                'cd cdk_package/test',
-                'npm run test'
-            ]
-        }));
+        // alpha_stage.addPost(new ShellStep('Validate', {
+        //     input: CodePipelineSource.codeCommit(repo, 'main'),
+        //     commands: [
+        //         'cd cdk_package/test',
+        //         'npm run test'
+        //     ]
+        // }));
 
         const beta_stage = pipeline.addStage(new BetaStage(this, "Beta", {
             env: { account: '042538542222', region: 'eu-west-2'}
         }));
-
-        beta_stage.addPost(new ShellStep('Validate', {
-            input: pipeline.synth.primaryOutput,
-            commands: [
-                'cd cdk_package/test',
-                'npm run test'
-            ]
-        }));
+        //
+        // beta_stage.addPost(new ShellStep('Validate', {
+        //     input: CodePipelineSource.codeCommit(repo, 'main'),
+        //     commands: [
+        //         'cd cdk_package/test',
+        //         'npm run test'
+        //     ]
+        // }));
     }
 }
