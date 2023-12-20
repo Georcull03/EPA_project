@@ -24,7 +24,6 @@ export class QwizPipelineStack extends cdk.Stack {
                     'cdk --version',
                     'tsc --version',
                     'pwd',
-                    'cd cdk_package/cdk.out',
                     'ls',
                     'npm install',
                     'npm run build',
@@ -32,6 +31,7 @@ export class QwizPipelineStack extends cdk.Stack {
                     'cd .. && cd test',
                     'npm run test'
                 ],
+                primaryOutputDirectory: 'cdk_package/cdk.out'
             })
         });
 
