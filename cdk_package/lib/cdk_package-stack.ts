@@ -132,12 +132,11 @@ export class CdkPackageStack extends Stack {
         });
 
         // NS record for the api hosted zone in the parent zone
-        if (api_hosted_sub_zone.hostedZoneNameServers){
            new route53.NsRecord(this, 'epa_nsrecord_api', {
                zone: my_hosted_zone,
                recordName: qwiz_api_zone_name,
                values: api_hosted_sub_zone.hostedZoneNameServers as string[]
-        })};
+        });
 
         // SSL certificate
         const ssl_cert_api = new acm.Certificate(this, 'certificate_api', {
@@ -161,7 +160,7 @@ export class CdkPackageStack extends Stack {
            comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
         });
 
-        // creating text records for security.
+        // creating text records for security
         // values provided aids the spf records to mitigate spoofing
         new route53.TxtRecord(this, 'api_domain_txt_record', {
            zone: api_hosted_sub_zone,
@@ -179,12 +178,11 @@ export class CdkPackageStack extends Stack {
         });
 
         // NS record for the distribution hosted zone in the parent zone
-        if (distribution_hosted_sub_zone.hostedZoneNameServers){
            new route53.NsRecord(this, 'epa_nsrecord_distribution', {
               zone: my_hosted_zone,
                recordName: qwiz_distribution_zone_name,
               values: distribution_hosted_sub_zone.hostedZoneNameServers as string[]
-        })};
+        });
 
         // SSL certificate for distribution domain
         const ssl_cert_distribution = new acm.Certificate(this, 'certificate_distribution', {
