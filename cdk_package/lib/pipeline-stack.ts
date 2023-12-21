@@ -37,16 +37,16 @@ export class QwizPipelineStack extends cdk.Stack {
             })
         });
 
-        // const alpha_stage = pipeline.addStage(new AlphaStage(this, "Alpha", {
-        //     env: { account: '911742436812', region: 'us-west-1'}
-        // }));
-        //
-        // const beta_stage = pipeline.addStage(new BetaStage(this, "Beta", {
-        //     env: { account: '602709950483', region: 'us-west-1'}
-        // }));
-
         const prod_stage = pipeline.addStage(new ProdStage(this, "Prod", {
             env: { account: '929483735452', region: 'us-west-1'}
         }));
+
+        const beta_stage = pipeline.addStage(new BetaStage(this, "Beta", {
+            env: { account: '602709950483', region: 'us-west-1'}
+        }));
+
+        // const alpha_stage = pipeline.addStage(new AlphaStage(this, "Alpha", {
+        //     env: { account: '911742436812', region: 'us-west-1'}
+        // }));
     }
 }
