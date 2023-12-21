@@ -161,7 +161,7 @@ export class CdkPackageStack extends Stack {
            comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
         });
 
-        // creating text records for security
+        // creating text records for security.
         // values provided aids the spf records to mitigate spoofing
         new route53.TxtRecord(this, 'api_domain_txt_record', {
            zone: api_hosted_sub_zone,
