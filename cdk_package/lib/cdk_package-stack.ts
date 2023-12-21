@@ -131,13 +131,6 @@ export class CdkPackageStack extends Stack {
             delegationRole: iam.Role.fromRoleArn(this, "DelegationRoleAPI", novaCrossDNSRole)
         });
 
-        // NS record for the api hosted zone in the parent zone
-           new route53.NsRecord(this, 'epa_nsrecord_api', {
-               zone: my_hosted_zone,
-               recordName: qwiz_api_zone_name,
-               values: api_hosted_sub_zone.hostedZoneNameServers as string[]
-        });
-
         // SSL certificate
         const ssl_cert_api = new acm.Certificate(this, 'certificate_api', {
            domainName: qwiz_api_zone_name,
@@ -175,13 +168,6 @@ export class CdkPackageStack extends Stack {
         // create a zone for the sub domain for the distribution
         const distribution_hosted_sub_zone = new route53.PublicHostedZone(this, 'distribution_sub', {
           zoneName: qwiz_distribution_zone_name
-        });
-
-        // NS record for the distribution hosted zone in the parent zone
-           new route53.NsRecord(this, 'epa_nsrecord_distribution', {
-              zone: my_hosted_zone,
-               recordName: qwiz_distribution_zone_name,
-              values: distribution_hosted_sub_zone.hostedZoneNameServers as string[]
         });
 
         // SSL certificate for distribution domain
