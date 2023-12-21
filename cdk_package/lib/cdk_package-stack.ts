@@ -132,10 +132,9 @@ export class CdkPackageStack extends Stack {
         });
 
         // SSL certificate
-        const ssl_cert_api = new acm.Certificate(this, 'certificate_api', {
+        const ssl_cert_api = new acm.DnsValidatedCertificate(this, 'certificate_api', {
            domainName: qwiz_api_zone_name,
-           certificateName: 'qwiz_cert_ssl_api',
-           validation: acm.CertificateValidation.fromDns(api_hosted_sub_zone),
+           hostedZone: api_hosted_sub_zone,
         });
 
         // adding the domain name to the api gateway
@@ -163,18 +162,24 @@ export class CdkPackageStack extends Stack {
         });
 
         // constructing the distribution url using the parent domain name
-        const qwiz_distribution_zone_name = 'qwiz' + hosted_zone_name
+        const qwiz_distribution_zone_name = 'qwiz.' + hosted_zone_name
 
         // create a zone for the sub domain for the distribution
         const distribution_hosted_sub_zone = new route53.PublicHostedZone(this, 'distribution_sub', {
           zoneName: qwiz_distribution_zone_name
         });
 
+        const domain_delegation_cdn = new route53.CrossAccountZoneDelegationRecord(this, 'zoneDelegationCDN', {
+            delegatedZone: distribution_hosted_sub_zone,
+            parentHostedZoneId: hostedZoneID,
+            delegationRole: iam.Role.fromRoleArn(this, "DelegationRoleCDN", novaCrossDNSRole)
+        });
+
         // SSL certificate for distribution domain
-        const ssl_cert_distribution = new acm.Certificate(this, 'certificate_distribution', {
+        const ssl_cert_distribution = new acm.DnsValidatedCertificate(this, 'certificate_distribution', {
            domainName: qwiz_distribution_zone_name,
-           certificateName: 'qwiz_cert_ssl_distribution',
-           validation: acm.CertificateValidation.fromDns(distribution_hosted_sub_zone)
+           hostedZone: distribution_hosted_sub_zone,
+           region: 'us-east-1',
         });
 
         const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
