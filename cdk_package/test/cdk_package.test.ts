@@ -29,7 +29,7 @@ test('Lambda functions created',  ()=> {
   template.hasResourceProperties('AWS::Lambda::Function', {
     Handler: 'get_index.handler'
   });
-  template.resourceCountIs('AWS::Lambda::Function', 2);
+  template.resourceCountIs('AWS::Lambda::Function', 3);
 })
 
 test('S3 bucket created', () => {
