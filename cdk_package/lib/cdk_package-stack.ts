@@ -119,7 +119,7 @@ export class CdkPackageStack extends Stack {
             hostedZoneId: hostedZoneID,
             zoneName: hosted_zone_name,
         });
-
+        //
         // creating a zone for the sub domain for the api
         const api_hosted_sub_zone = new route53.PublicHostedZone(this, 'api_sub', {
            zoneName: qwiz_api_zone_name,
