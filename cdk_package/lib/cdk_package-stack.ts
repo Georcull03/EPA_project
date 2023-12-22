@@ -95,7 +95,7 @@ export class CdkPackageStack extends Stack {
         });
 
         const deployment = new s3deploy.BucketDeployment(this, 'DeployWebsite', {
-            sources: [s3deploy.Source.asset(path.join(__dirname, '../../cloudscape/src/pages'))],
+            sources: [s3deploy.Source.asset(path.join(__dirname, '../../cloudscape'))],
             destinationBucket: bucket,
         });
 
@@ -202,7 +202,7 @@ export class CdkPackageStack extends Stack {
                domainNames: [qwiz_distribution_zone_name],
                certificate: ssl_cert_distribution,
                enableIpv6: true,
-               defaultRootObject: 'index.html'
+               defaultRootObject: 'src/pages/flavors/index.html'
         });
 
         // creating text records for security
