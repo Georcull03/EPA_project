@@ -1,4 +1,4 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { Stack, StackProps, Duration } from 'aws-cdk-lib';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origin from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -17,6 +17,7 @@ import * as target from 'aws-cdk-lib/aws-route53-targets';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import { Construct } from 'constructs';
 import { Rule } from 'aws-cdk-lib/aws-events';
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 
 export class CdkPackageStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -91,6 +92,11 @@ export class CdkPackageStack extends Stack {
                 allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
                 allowMethods: ["GET", "POST"]
             }
+        });
+
+        const deployment = new s3deploy.BucketDeployment(this, 'DeployWebsite', {
+            sources: [s3deploy.Source.asset(path.join(__dirname, '../../cloudscape/src/pages'))],
+            destinationBucket: bucket,
         });
 
         const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
@@ -184,7 +190,7 @@ export class CdkPackageStack extends Stack {
 
         const distribution = new cloudfront.Distribution(this, 'epa_cloudfront', {
             defaultBehavior: {
-                origin: new origin.S3Origin(bucket, {
+                origin: new origin.S3Origin(deployment.deployedBucket, {
                     originAccessIdentity: oai,
                 }),
                        originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
@@ -196,6 +202,7 @@ export class CdkPackageStack extends Stack {
                domainNames: [qwiz_distribution_zone_name],
                certificate: ssl_cert_distribution,
                enableIpv6: true,
+               defaultRootObject: 'index.html'
         });
 
         // creating text records for security
@@ -214,6 +221,20 @@ export class CdkPackageStack extends Stack {
            recordName: '_dmarc.' + qwiz_distribution_zone_name,
            values: ['v=DMARC1; p=reject; rua=mailto:report@dmarc.amazon.com; ruf=mailto:report@dmarc.amazon.com'],
            comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
+        });
+
+        // Cloudfront: records
+
+        new route53.ARecord(this, 'DistributionARecord', {
+            zone: distribution_hosted_sub_zone,
+            target: route53.RecordTarget.fromAlias(new target.CloudFrontTarget(distribution)),
+            ttl: Duration.minutes(5)
+        });
+
+        new route53.AaaaRecord(this, 'DistributionAAAARecord', {
+            zone: distribution_hosted_sub_zone,
+            target: route53.RecordTarget.fromAlias(new target.CloudFrontTarget(distribution)),
+            ttl: Duration.minutes(5)
         });
 
 
