@@ -166,7 +166,7 @@ export class CdkPackageStack extends Stack {
            values: ['v=DMARC1; p=reject; rua=mailto:report@dmarc.amazon.com; ruf=mailto:report@dmarc.amazon.com'],
            comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
         });
-
+//
         // constructing the distribution url using the parent domain name
         const qwiz_distribution_zone_name = 'qwiz.' + hosted_zone_name
 
