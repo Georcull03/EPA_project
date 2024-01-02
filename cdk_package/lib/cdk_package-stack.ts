@@ -102,7 +102,7 @@ export class CdkPackageStack extends Stack {
         const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
         const getlambdaintegration = new apigateway.LambdaIntegration(getFunction);
 
-        // input your own domain name here.
+        // input your own domain name here
         const hosted_zone_name = 'cullenge.people.aws.dev';
         const hostedZoneID = 'Z08284882SLUMHFLQ7D9I';
         const novaCrossDNSRole = 'arn:aws:iam::524423554500:role/CrossDNSDelegationRole-DO-NOT-DELETE';
