@@ -102,19 +102,10 @@ export class CdkPackageStack extends Stack {
         const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
         const getlambdaintegration = new apigateway.LambdaIntegration(getFunction);
 
-        new iam.Role(this, "SuperNovaRole", {
-            roleName: "Nova-DO-NOT-DELETE",
-            assumedBy: new iam.ServicePrincipal("nova.aws.internal"),
-            managedPolicies: [
-                iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonRoute53FullAccess"),
-                iam.ManagedPolicy.fromAwsManagedPolicyName("SecurityAudit")
-            ]
-        });
-
         // input your own domain name here.
         const hosted_zone_name = 'cullenge.people.aws.dev';
-        const hostedZoneID = 'Z10002211CH6INUPRQ0KF';
-        const novaCrossDNSRole = 'arn:aws:iam::929483735452:role/CrossDNSDelegationRole-DO-NOT-DELETE';
+        const hostedZoneID = 'Z08284882SLUMHFLQ7D9I';
+        const novaCrossDNSRole = 'arn:aws:iam::524423554500:role/CrossDNSDelegationRole-DO-NOT-DELETE';
 
         // constructing the api url with the domain name
         const qwiz_api_zone_name = 'api.' + hosted_zone_name
