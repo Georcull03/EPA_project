@@ -104,7 +104,7 @@ export class CdkPackageStack extends Stack {
 
         // input your own domain name here.
         const hosted_zone_name = 'cullenge.people.aws.dev';
-        const hostedZoneID = 'Z08284882SLUMHFLQ7D9I'; // personal account
+        const hostedZoneID = 'Z08284882SLUMHFLQ7D9I'; // personal
         const novaCrossDNSRole = 'arn:aws:iam::524423554500:role/CrossDNSDelegationRole-DO-NOT-DELETE';
 
         // constructing the api url with the domain name
