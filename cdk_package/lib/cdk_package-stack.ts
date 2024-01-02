@@ -140,7 +140,7 @@ export class CdkPackageStack extends Stack {
            certificate: ssl_cert_api,
         });
 
-        // creating text records for security.
+        // creating text records for security
         // values provided state that no email addresses/IPs are allowed to send emails from this domain
         new route53.TxtRecord(this, 'api_domain_txt_record_spf', {
            zone: api_hosted_sub_zone,
