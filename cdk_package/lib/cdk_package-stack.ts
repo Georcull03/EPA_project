@@ -128,7 +128,7 @@ export class CdkPackageStack extends Stack {
             delegationRole: iam.Role.fromRoleArn(this, "DelegationRoleAPI", novaCrossDNSRole)
         });
 
-        // SSL certificate
+        // SSL certificate.
         const ssl_cert_api = new acm.DnsValidatedCertificate(this, 'certificate_api', {
            domainName: qwiz_api_zone_name,
            hostedZone: api_hosted_sub_zone,
