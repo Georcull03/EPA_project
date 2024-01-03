@@ -201,7 +201,7 @@ export class CdkPackageStack extends Stack {
                        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
                        responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
-                       cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+                       cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
             },
                domainNames: [qwiz_distribution_zone_name],
                certificate: ssl_cert_distribution,
