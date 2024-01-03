@@ -158,6 +158,18 @@ export class CdkPackageStack extends Stack {
            comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
         });
 
+        new route53.ARecord(this, 'ApiARecord', {
+            zone: api_hosted_sub_zone,
+            target: route53.RecordTarget.fromAlias(new target.ApiGateway(api)),
+            ttl: Duration.minutes(5)
+        });
+
+        new route53.AaaaRecord(this, 'ApiAAAARecord', {
+            zone: api_hosted_sub_zone,
+            target: route53.RecordTarget.fromAlias(new target.ApiGateway(api)),
+            ttl: Duration.minutes(5)
+        });
+
         // constructing the distribution url using the parent domain name
         const qwiz_distribution_zone_name = 'qwiz.' + hosted_zone_name
 
