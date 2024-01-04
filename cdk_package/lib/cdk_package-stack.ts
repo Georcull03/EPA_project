@@ -54,10 +54,10 @@ export class CdkPackageStack extends Stack {
         table.grantReadWriteData(getFunction)
 
         // lambda write interview question data
-        const putFunction = new lambda.Function(this, 'postFunction', {
+        const putFunction = new lambda.Function(this, 'putFunction', {
             runtime: lambda.Runtime.NODEJS_18_X,
-            handler: 'index.handler',
-            code: lambda.Code.fromAsset(path.join(__dirname, 'post-lambda-handler')),
+            handler: 'put_index.handler',
+            code: lambda.Code.fromAsset(path.join(__dirname, 'lambdaHandler')),
         });
 
         if (putFunction.role === null) {
