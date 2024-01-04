@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  root: resolve(__dirname, 'src/pages/home'),
+  root: resolve(__dirname, 'src/pages'),
   publicDir: resolve(__dirname, 'public'),
   plugins: [react()],
   server: {
@@ -17,7 +17,8 @@ export default defineConfig({
     assetsDir: '',
     rollupOptions: {
       input: {
-        home: resolve(__dirname, '/index.html'),
+        home: resolve(__dirname, './src/pages/home/index.html'),
+        'create-question': resolve(__dirname, './src/pages/create-question/index.html')
       },
     },
   },

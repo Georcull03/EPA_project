@@ -129,7 +129,7 @@ export default function VariationTable() {
                     actions={
                         <SpaceBetween size="xs" direction="horizontal">
                             <Button disabled={collectionProps.selectedItems?.length === 0}>Edit</Button>
-                            <Button href="/create-flavor/index.html" variant="primary">
+                            <Button href="/create-question/index.html" variant="primary">
                                 Enter question
                             </Button>
                         </SpaceBetween>
