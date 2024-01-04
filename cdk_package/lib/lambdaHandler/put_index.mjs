@@ -13,7 +13,7 @@ const client = new DynamoDBClient({});
 
 const dynamo = DynamoDBDocumentClient.from(client);
 
-const tableName = "test_lambda";
+const tableName = "qwizgurus_interview_table";
 
 export const handler = async (event, context) => {
   let body;
