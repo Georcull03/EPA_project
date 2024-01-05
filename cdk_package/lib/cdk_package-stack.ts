@@ -206,7 +206,7 @@ export class CdkPackageStack extends Stack {
                domainNames: [qwiz_distribution_zone_name],
                certificate: ssl_cert_distribution,
                enableIpv6: true,
-               defaultRootObject: 'index.html'
+               defaultRootObject: 'home/index.html'
         });
 
         // creating text records for security
