@@ -6,7 +6,7 @@ export function ApiPath() {
 
     console.log(domainCDN)
 
-    const hasPrefix = domainCDN.includes("alpha" || "beta")
+    const hasPrefix = domainCDN.includes("prod" || "beta")
 
     if (hasPrefix) {
         const usePrefix = window.location.host.toLowerCase().split('.')[0]

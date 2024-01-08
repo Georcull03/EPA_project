@@ -15,6 +15,8 @@ const dynamo = DynamoDBDocumentClient.from(client);
 
 const tableName = "qwizgurus_interview_table";
 
+const dnsStage = process.env.DNS_STAGE ? process.env.DNS_STAGE : "";
+
 export const handler = async (event, context) => {
     let body;
     let statusCode = 200;
