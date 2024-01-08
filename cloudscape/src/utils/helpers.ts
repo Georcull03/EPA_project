@@ -9,7 +9,8 @@ export function ApiPath() {
     const hasPrefix = domainCDN.includes("prod" || "beta")
 
     if (hasPrefix == true) {
-        const usePrefix = window.location.host.toLowerCase().split('.')[0].replace('qwiz', '')
+        const prefix = window.location.host.toLowerCase().split('.')[0] // prodqwiz
+        const usePrefix = prefix.substring(0, prefix.length - 4)
         console.log('this is the prefix created: ' + usePrefix)
         return usePrefix + apiDomain
     }
