@@ -19,8 +19,12 @@ import { Construct } from 'constructs';
 import { Rule } from 'aws-cdk-lib/aws-events';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 
+export interface ServiceStackProps extends StackProps {
+    readonly stageName: string;
+}
+
 export class CdkPackageStack extends Stack {
-    constructor(scope: Construct, id: string, props?: StackProps) {
+    constructor(scope: Construct, id: string, props?: ServiceStackProps) {
         super(scope, id, props);
 
         //  dynamo table
@@ -51,6 +55,10 @@ export class CdkPackageStack extends Stack {
 
         getFunction.addEnvironment("TABLE_NAME", table.tableName)
 
+        if (props?.stageName != undefined) {
+            getFunction.addEnvironment("DNS_STAGE", props?.stageName)
+        }
+
         table.grantReadWriteData(getFunction)
 
         // lambda write interview question data
@@ -68,6 +76,10 @@ export class CdkPackageStack extends Stack {
 
         putFunction.addEnvironment("TABLE_NAME", table.tableName)
 
+        if (props?.stageName != undefined) {
+            putFunction.addEnvironment("DNS_STAGE", props?.stageName)
+        }
+
         table.grantReadWriteData(putFunction)
 
         const bucket = new s3.Bucket(this, 'epa-bucket', {
@@ -75,7 +87,7 @@ export class CdkPackageStack extends Stack {
         });
 
         bucket.addCorsRule({
-            allowedOrigins: ["https://qwiz.cullenge.people.aws.dev", "https://qwiz-api.cullenge.people.aws.dev"],
+            allowedOrigins: ["https://" + props?.stageName + "qwiz.cullenge.people.aws.dev", "https://" + props?.stageName + "qwiz-api.cullenge.people.aws.dev"],
             allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.POST],
             allowedHeaders: ["*"],
             exposedHeaders: ["Access-Control-Allow-Origin"]
@@ -88,7 +100,7 @@ export class CdkPackageStack extends Stack {
         const api = new apigateway.RestApi(this, 'epa-api', {
             restApiName: 'epa-api',
             defaultCorsPreflightOptions: {
-                allowOrigins: ["https://qwiz.cullenge.people.aws.dev"],
+                allowOrigins: ["https://" + props?.stageName + "qwiz.cullenge.people.aws.dev"],
                 allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
                 allowMethods: ["GET", "POST"]
             }
@@ -108,7 +120,7 @@ export class CdkPackageStack extends Stack {
         const novaCrossDNSRole = 'arn:aws:iam::524423554500:role/CrossDNSDelegationRole-DO-NOT-DELETE';
 
         // constructing the api url with the domain name
-        const qwiz_api_zone_name = 'api.' + hosted_zone_name
+        const qwiz_api_zone_name = props?.stageName + 'api.' + hosted_zone_name
 
         // looking up hosted zone already created to find the records
         const my_hosted_zone = route53.HostedZone.fromHostedZoneAttributes(this, 'hosted_zone',
@@ -171,7 +183,7 @@ export class CdkPackageStack extends Stack {
         });
 
         // constructing the distribution url using the parent domain name
-        const qwiz_distribution_zone_name = 'qwiz.' + hosted_zone_name
+        const qwiz_distribution_zone_name = props?.stageName + 'qwiz.' + hosted_zone_name
 
         // create a zone for the sub domain for the distribution
         const distribution_hosted_sub_zone = new route53.PublicHostedZone(this, 'distribution_sub', {
