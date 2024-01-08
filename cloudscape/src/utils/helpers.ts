@@ -2,7 +2,7 @@ export function ApiPath() {
 
     const apiDomain = 'api.cullenge.people.aws.dev'
 
-    const domainCDN = window.location.host.toLowerCase()
+    const domainCDN = 'prodqwiz.cullenge.people.aws.dev'
 
     console.log(domainCDN)
 
