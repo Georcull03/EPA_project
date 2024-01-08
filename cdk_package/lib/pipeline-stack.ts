@@ -15,7 +15,7 @@ export class QwizPipelineStack extends cdk.Stack {
             stages: [
                 {name: "Prod", accountId: "929483735452", region: "us-west-1", isProd: false},
                 {name: "Beta", accountId: "602709950483", region: "us-west-1", isProd: false},
-                // {name: "Alpha", accountId: "911742436812", region: "us-west-1", isProd: false}.
+                // {name: "Alpha", accountId: "911742436812", region: "us-west-1", isProd: false}
             ]
         }
 
