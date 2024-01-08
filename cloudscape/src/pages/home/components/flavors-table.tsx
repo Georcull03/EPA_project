@@ -16,6 +16,7 @@ import { TextFilter } from '@cloudscape-design/components';
 import Box from '@cloudscape-design/components/box';
 import Button from '@cloudscape-design/components/button';
 import SpaceBetween from '@cloudscape-design/components/space-between';
+import {createApiPath} from "../../../utils/helpers";
 
 const getFilterCounterText = (count = 0) => `${count} ${count === 1 ? 'match' : 'matches'}`;
 const getHeaderCounterText = (items: readonly Questions[] = [], selectedItems: readonly Questions[] = []) => {
@@ -73,9 +74,11 @@ export default function VariationTable() {
     const [data, setData] = useState<Questions[]>([]);
     const [preferences, setPreferences] = useState<CollectionPreferencesProps['preferences']>({ pageSize: 20 });
 
+    const url = createApiPath()
+
     useEffect(() => {
         // Fetch data from the API gateway URL
-        axios.get('https://api.cullenge.people.aws.dev/question')
+        axios.get(url + '/question')
             .then(response => {
                 setData(response.data);
             })

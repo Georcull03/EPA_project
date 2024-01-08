@@ -13,7 +13,7 @@ export class QwizPipelineStack extends cdk.Stack {
 
         const constants = {
             stages: [
-                {name: "Prod", accountId: "929483735452", region: "us-west-1", isProd: false},
+                {name: "Prod", accountId: "929483735452", region: "us-west-1", isProd: true},
                 {name: "Beta", accountId: "602709950483", region: "us-west-1", isProd: false},
                 // {name: "Alpha", accountId: "911742436812", region: "us-west-1", isProd: false}.
             ]
@@ -56,17 +56,5 @@ export class QwizPipelineStack extends cdk.Stack {
 
             const stage = pipeline.addStage(deployment)
         })
-
-        // const prod_stage = pipeline.addStage(new ProdStage(this, "Prod", {
-        //     env: { account: '929483735452', region: 'us-west-1'}
-        // }));
-
-        // const beta_stage = pipeline.addStage(new BetaStage(this, "Beta", {
-        //     env: { account: '602709950483', region: 'us-west-1'}
-        // }));
-
-        // const alpha_stage = pipeline.addStage(new AlphaStage(this, "Alpha", {
-        //     env: { account: '911742436812', region: 'us-west-1'}
-        // }));
     }
 }

@@ -10,7 +10,7 @@ test('DynamoDB table created', () => {
   const template = Template.fromStack(stack);
 
   template.hasResourceProperties('AWS::DynamoDB::Table', {
-    TableName: 'qwizgurus_interview_table_us_west_1'
+    TableName: 'qwizgurus_interview_table'
   });
   template.resourceCountIs('AWS::DynamoDB::Table', 1);
 });

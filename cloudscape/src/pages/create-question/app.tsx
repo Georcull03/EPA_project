@@ -14,6 +14,7 @@ import Input from '@cloudscape-design/components/input';
 import Breadcrumbs from '../../components/breadcrumbs';
 import Navigation from '../../components/navigation';
 import ShellLayout from '../../layouts/shell';
+import {createApiPath} from "../../utils/helpers";
 
 const isEmptyString = (value: string) => !value?.length;
 export default function App() {
@@ -27,8 +28,10 @@ export default function App() {
     const handleSubmit = async (event:  React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
+        const url = createApiPath()
+
         // Your API Gateway URL for the PUT request
-        const apiUrl = 'https://api.cullenge.people.aws.dev/put-question';
+        const apiUrl = url + '/put-question';
 
         try {
             const response = await fetch(apiUrl, {

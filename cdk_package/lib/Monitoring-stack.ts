@@ -10,7 +10,7 @@ export interface MonitoringStackProps extends StackProps {
 
 export class MonitoringStack extends cdk.Stack {
 
-    protected readonly lambdaDashboard: Dashboard;
+    protected readonly Dashboard: Dashboard;
 
     protected readonly invocations = new Metric({
         namespace: "AWS/Lambda",
@@ -63,7 +63,7 @@ export class MonitoringStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props: MonitoringStackProps) {
         super(scope, id);
 
-        this.lambdaDashboard = new Dashboard(this, (props?.dashboardName || ""), {
+        this.Dashboard = new Dashboard(this, (props?.dashboardName || ""), {
             dashboardName: (props?.stageName || "") + (props?.dashboardName || "ProdDashboard")
         });
     }
@@ -75,7 +75,7 @@ export class MonitoringStack extends cdk.Stack {
             "FunctionName": functionName
         };
 
-        this.lambdaDashboard.addWidgets(
+        this.Dashboard.addWidgets(
             new GraphWidget({
                 title: displayName + " Invocations",
                 left: [
