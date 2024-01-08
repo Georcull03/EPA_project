@@ -2,13 +2,13 @@ export function ApiPath() {
 
     const apiDomain = 'api.cullenge.people.aws.dev'
 
-    const domainCDN = 'prodqwiz.cullenge.people.aws.dev'
+    const domainCDN = window.location.host.toLowerCase()
 
     console.log(domainCDN)
 
     const hasPrefix = domainCDN.includes("prod" || "beta")
 
-    if (hasPrefix) {
+    if (hasPrefix == true) {
         const usePrefix = window.location.host.toLowerCase().split('.')[0]
         console.log('this is the prefix created: ' + usePrefix)
         return usePrefix + apiDomain
