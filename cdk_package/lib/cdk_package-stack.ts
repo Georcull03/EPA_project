@@ -39,7 +39,7 @@ export class CdkPackageStack extends Stack {
             }
         });
 
-        // lambda fetch interview question data.
+        // lambda fetch interview question data
         const getFunction = new lambda.Function(this, 'Function', {
             runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'get_index.handler',
