@@ -51,6 +51,11 @@ export default function App() {
             if (response.ok) {
                 // Handle successful response
                 console.log('PUT request successful');
+                setLevel('');
+                setQuestion('');
+                setAnswer('');
+                setManagerIC('');
+                setRole('');
             } else {
                 // Handle error response
                 console.error('PUT request failed');
