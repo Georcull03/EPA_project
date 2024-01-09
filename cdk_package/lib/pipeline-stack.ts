@@ -13,9 +13,9 @@ export class QwizPipelineStack extends cdk.Stack {
 
         const constants = {
             stages: [
-                {name: "Prod", accountId: "929483735452", region: "us-west-1", isProd: false},
+                {name: "Prod", accountId: "929483735452", region: "us-west-1", isProd: true},
                 {name: "Beta", accountId: "602709950483", region: "us-west-1", isProd: false},
-                // {name: "Alpha", accountId: "911742436812", region: "us-west-1", isProd: false}.
+                {name: "Alpha", accountId: "911742436812", region: "us-west-1", isProd: false}
             ]
         }
 
@@ -50,7 +50,7 @@ export class QwizPipelineStack extends cdk.Stack {
         constants.stages.map((s) => {
             const deployment = new ServiceStage(this, (s.name.toLowerCase() + 'Deployment'), {
                 env: { account: s.accountId, region: s.region },
-                stageName: s.isProd ? '' : s.name.toLowerCase(),
+                stageName: s.isProd ? 'prod' : s.name.toLowerCase(),
 
             });
 
