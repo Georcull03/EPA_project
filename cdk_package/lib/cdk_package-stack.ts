@@ -25,6 +25,7 @@ export interface ServiceStackProps extends StackProps {
 
 export class CdkPackageStack extends Stack {
     constructor(scope: Construct, id: string, props?: ServiceStackProps) {
+        let allowedOrigins;
         super(scope, id, props);
 
         //  dynamo table
@@ -86,8 +87,14 @@ export class CdkPackageStack extends Stack {
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         });
 
+        if (props?.stageName != 'prod') {
+            allowedOrigins = ["https://" + props?.stageName + "qwiz.cullenge.people.aws.dev"];
+        } else {
+            allowedOrigins = ["https://qwiz.cullenge.people.aws.dev"];
+        }
+
         bucket.addCorsRule({
-            allowedOrigins: ["https://" + props?.stageName + "qwiz.cullenge.people.aws.dev", "https://" + props?.stageName + "qwiz-api.cullenge.people.aws.dev"],
+            allowedOrigins: allowedOrigins,
             allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.POST],
             allowedHeaders: ["*"],
             exposedHeaders: ["Access-Control-Allow-Origin"]
@@ -100,7 +107,7 @@ export class CdkPackageStack extends Stack {
         const api = new apigateway.RestApi(this, 'epa-api', {
             restApiName: 'epa-api',
             defaultCorsPreflightOptions: {
-                allowOrigins: ["https://" + props?.stageName + "qwiz.cullenge.people.aws.dev"],
+                allowOrigins: allowedOrigins,
                 allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
                 allowMethods: ["GET", "POST"]
             }
