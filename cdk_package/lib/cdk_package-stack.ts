@@ -27,7 +27,7 @@ export class CdkPackageStack extends Stack {
         super(scope, id, props);
 
         //  dynamo table
-        const table = new ddb.Table(this, 'qwizgurus_interview_table', {
+        const table = new ddb.Table(this, 'qwizgurus_interview_table' + props?.stageName, {
             tableName: 'qwizgurus_interview_table',
             partitionKey: {
                 name: 'level',
