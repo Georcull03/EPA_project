@@ -201,7 +201,7 @@ export class CdkPackageStack extends Stack {
         if (props?.stageName != 'prod') {
             qwiz_distribution_zone_name = props?.stageName + 'qwiz.' + hosted_zone_name
         } else {
-            qwiz_distribution_zone_name = 'qwiz' + hosted_zone_name
+            qwiz_distribution_zone_name = 'qwiz.' + hosted_zone_name
         }
 
         // create a zone for the sub domain for the distribution
