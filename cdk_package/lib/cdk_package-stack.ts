@@ -10,13 +10,11 @@ import * as cloudtrail from 'aws-cdk-lib/aws-cloudtrail'
 import * as sns from 'aws-cdk-lib/aws-sns'
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as kms from 'aws-cdk-lib/aws-kms';
-import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as path from 'path';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as target from 'aws-cdk-lib/aws-route53-targets';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import { Construct } from 'constructs';
-import { Rule } from 'aws-cdk-lib/aws-events';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 
 export interface ServiceStackProps extends StackProps {
@@ -29,8 +27,8 @@ export class CdkPackageStack extends Stack {
         super(scope, id, props);
 
         //  dynamo table
-        const table = new ddb.Table(this, 'qwizgurus_interview_table', {
-            tableName: props?.stageName + '_qwizgurus_interview_table',
+        const table = new ddb.Table(this, props?.stageName +'_qwizgurus_interview_table', {
+            tableName: 'qwizgurus_interview_table',
             partitionKey: {
                 name: 'level',
                 type: ddb.AttributeType.STRING,
