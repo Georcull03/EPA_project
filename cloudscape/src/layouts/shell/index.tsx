@@ -23,7 +23,7 @@ export default function Shell({ children, contentType, breadcrumbs, tools, navig
           identity={{
             logo: { src: '/img.png', alt: 'Question Answer' },
             title: 'Qwiz Interview question bank',
-            href: 'index.html',
+            href: 'home/index.html',
           }}
           i18nStrings={{
             overflowMenuTriggerText: 'More',
