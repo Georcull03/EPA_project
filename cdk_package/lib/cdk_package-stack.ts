@@ -126,13 +126,13 @@ export class CdkPackageStack extends Stack {
         const hostedZoneID = 'Z08284882SLUMHFLQ7D9I';
         const novaCrossDNSRole = 'arn:aws:iam::524423554500:role/CrossDNSDelegationRole-DO-NOT-DELETE';
 
-        let qwiz_api_zone_name: string = ''
+        let qwiz_api_zone_name: string;
 
         // constructing the api url with the domain name
         if (props?.stageName != 'prod') {
-            const qwiz_api_zone_name = props?.stageName + 'api.' + hosted_zone_name
+            qwiz_api_zone_name = props?.stageName + 'api.' + hosted_zone_name
         } else {
-            const qwiz_api_zone_name = 'api.' + hosted_zone_name
+            qwiz_api_zone_name = 'api.' + hosted_zone_name
         }
 
         // looking up hosted zone already created to find the records
@@ -195,13 +195,13 @@ export class CdkPackageStack extends Stack {
             ttl: Duration.minutes(5)
         });
 
-        let qwiz_distribution_zone_name: string = ''
+        let qwiz_distribution_zone_name: string;
 
         // constructing the distribution url using the parent domain name
         if (props?.stageName != 'prod') {
-            const qwiz_distribution_zone_name = props?.stageName + 'qwiz.' + hosted_zone_name
+            qwiz_distribution_zone_name = props?.stageName + 'qwiz.' + hosted_zone_name
         } else {
-            const qwiz_distribution_zone_name = 'qwiz' + hosted_zone_name
+            qwiz_distribution_zone_name = 'qwiz' + hosted_zone_name
         }
 
         // create a zone for the sub domain for the distribution
