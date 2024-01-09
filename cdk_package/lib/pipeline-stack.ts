@@ -50,7 +50,7 @@ export class QwizPipelineStack extends cdk.Stack {
         constants.stages.map((s) => {
             const deployment = new ServiceStage(this, (s.name.toLowerCase() + 'Deployment'), {
                 env: { account: s.accountId, region: s.region },
-                stageName: s.isProd ? 'proud' : s.name.toLowerCase(),
+                stageName: s.isProd ? 'prod' : s.name.toLowerCase(),
 
             });
 
