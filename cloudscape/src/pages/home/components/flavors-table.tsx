@@ -73,6 +73,7 @@ const EmptyState = ({title, subtitle, action}: { title: string; subtitle: string
 export default function VariationTable() {
     const [data, setData] = useState<Questions[]>([]);
     const [preferences, setPreferences] = useState<CollectionPreferencesProps['preferences']>({pageSize: 20});
+    const [selectedRecord, setSelectedRecord] = useState<Questions | null>(null);
 
     const url = createApiPath()
 
@@ -86,6 +87,13 @@ export default function VariationTable() {
                 console.error('Error fetching data:', error);
             });
     }, []);
+
+    const handleEditClick = () => {
+        if (collectionProps.selectedItems && collectionProps.selectedItems.length === 1) {
+            setSelectedRecord(collectionProps.selectedItems[0]);
+            window.location.href = `/create-question/index.html?editMode=true&level=${encodeURIComponent(collectionProps.selectedItems[0].level)}&question=${encodeURIComponent(collectionProps.selectedItems[0].question)}&Answer=${encodeURIComponent(collectionProps.selectedItems[0].Answer)}&ManagerIC=${encodeURIComponent(collectionProps.selectedItems[0].ManagerIC)}&Role=${encodeURIComponent(collectionProps.selectedItems[0].Role)}`;
+        }
+    };
 
     const {
         items,
@@ -140,7 +148,7 @@ export default function VariationTable() {
                     actions={
                         <SpaceBetween size="xs" direction="horizontal">
                             <Button disabled={collectionProps.selectedItems?.length === 0}
-                                    href="/create-question/index.html">Edit</Button>
+                                    onClick={handleEditClick}>Edit</Button>
                             <Button href="/create-question/index.html" variant="primary">
                                 Enter question
                             </Button>

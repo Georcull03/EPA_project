@@ -1,6 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Button from '@cloudscape-design/components/button';
 import Form from '@cloudscape-design/components/form';
 import Header from '@cloudscape-design/components/header';
@@ -15,7 +15,6 @@ import Breadcrumbs from '../../components/breadcrumbs';
 import Navigation from '../../components/navigation';
 import ShellLayout from '../../layouts/shell';
 import {createApiPath} from "../../utils/helpers";
-import {animate} from "@cloudscape-design/components/internal/animate";
 
 const isEmptyString = (value: string) => !value?.length;
 export default function App() {
@@ -74,6 +73,19 @@ export default function App() {
             location.pathname = "home/index.html"
         }
     }
+
+    useEffect(() => {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const queryParams = Object.fromEntries(urlSearchParams.entries());
+
+        if (queryParams.editMode === 'true' && Object.keys(queryParams).length > 1) {
+            setLevel(queryParams.level || '');
+            setQuestion(queryParams.question || '');
+            setAnswer(queryParams.Answer || '');
+            setManagerIC(queryParams.ManagerIC || '');
+            setRole(queryParams.Role || '');
+        }
+    }, []);
 
     return (
         <ShellLayout
