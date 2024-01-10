@@ -9,12 +9,13 @@ import SpaceBetween from '@cloudscape-design/components/space-between';
 import ContentLayout from '@cloudscape-design/components/content-layout';
 import FormField from '@cloudscape-design/components/form-field';
 import Container from '@cloudscape-design/components/container';
-import Input from '@cloudscape-design/components/input';
+import Input from '@cloudscape-design/components/input'
 
 import Breadcrumbs from '../../components/breadcrumbs';
 import Navigation from '../../components/navigation';
 import ShellLayout from '../../layouts/shell';
 import {createApiPath} from "../../utils/helpers";
+import {animate} from "@cloudscape-design/components/internal/animate";
 
 const isEmptyString = (value: string) => !value?.length;
 export default function App() {
@@ -68,10 +69,16 @@ export default function App() {
         setIsFormSubmitted(true);
     };
 
+    const handleClick = () => {
+        if (level != '' && question != '' && Answer != '' && ManagerIC != '' && Role != '') {
+            location.pathname = "home/index.html"
+        }
+    }
+
     return (
         <ShellLayout
             contentType="form"
-            breadcrumbs={<Breadcrumbs active={{text: 'Create question', href: '/create-question/index.html'}}/>}
+            breadcrumbs={<Breadcrumbs active={{text: 'Create question', href: 'index.html'}}/>}
             navigation={<Navigation/>}
             tools={<HelpPanel header={<h2>Help panel</h2>}/>}
         >
@@ -94,7 +101,7 @@ export default function App() {
                                 <Button href="/home/index.html" variant="link">
                                     Return
                                 </Button>
-                                <Button formAction="submit" variant="primary">
+                                <Button formAction="submit" variant="primary" onClick={handleClick}>
                                     Create Question
                                 </Button>
                             </SpaceBetween>

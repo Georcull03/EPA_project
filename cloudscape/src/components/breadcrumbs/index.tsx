@@ -3,7 +3,7 @@
 import React from 'react';
 import BreadcrumbGroup, { BreadcrumbGroupProps } from '@cloudscape-design/components/breadcrumb-group';
 
-const items: BreadcrumbGroupProps.Item[] = [{ text: 'Qwiz Interview question bank', href: 'home/index.html' }];
+const items: BreadcrumbGroupProps.Item[] = [{ text: 'Qwiz Interview question bank', href: 'index.html' }];
 
 export interface BreadcrumbsProps {
   active: BreadcrumbGroupProps.Item;
