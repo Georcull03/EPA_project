@@ -17,7 +17,7 @@ const tableName = "qwizgurus_interview_table";
 
 const dnsStage = process.env.DNS_STAGE ? process.env.DNS_STAGE : "";
 
-export const handler = async (event) => {
+export const handler = async (event: { requestContext: any; body: any; routeKey?: any; }) => {
     let body;
     let statusCode = 200;
     const headers = {
