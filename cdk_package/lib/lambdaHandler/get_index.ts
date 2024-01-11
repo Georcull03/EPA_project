@@ -1,4 +1,4 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 import {
     DynamoDBDocumentClient,
     ScanCommand,
@@ -17,7 +17,7 @@ const tableName = "qwizgurus_interview_table";
 
 const dnsStage = process.env.DNS_STAGE ? process.env.DNS_STAGE : "";
 
-export const handler = async (event, context) => {
+export const handler = async (event) => {
     let body;
     let statusCode = 200;
     const headers = {
@@ -29,28 +29,20 @@ export const handler = async (event, context) => {
     // switch (event.requestContext.httpMethod)
 
     try {
-        switch(event.requestContext.httpMethod) {
-            case "PUT":
-                let requestJSON = JSON.parse(event.body);
-                await dynamo.send(
-                    new PutCommand({
-                        TableName: tableName,
-                        Item: {
-                            level: requestJSON.level,
-                            question: requestJSON.question,
-                            Answer: requestJSON.Answer,
-                            ManagerIC: requestJSON.ManagerIC,
-                            Role: requestJSON.Role,
-                        },
-                    })
+        switch (event.requestContext.httpMethod) {
+            case "GET":
+                console.log('its a GET method');
+                body = await dynamo.send(
+                    new ScanCommand({TableName: tableName})
                 );
-                body = `Put item ${requestJSON.question}`;
+                body = body.Items;
                 break;
             default:
-                throw new Error(`Unsupported route: "${event.routeKey}"`);
+                throw new Error(`Unsupported route: "${event.requestContext.httpMethod}"`);
         }
     } catch (err) {
         statusCode = 400;
+        // @ts-ignore
         body = err.message;
     } finally {
         body = JSON.stringify(body);
