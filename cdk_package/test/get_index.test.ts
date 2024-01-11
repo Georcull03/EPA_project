@@ -30,7 +30,7 @@ beforeEach(() => {
 
 it ("shouldn't retrieve all questions from the DynamoDB", async () => {
     ddbMock.on(ScanCommand).resolves({
-        Items: [malformed_question] // Use Items instead of Item
+        Items: [malformed_question]
     });
 
     const response = await handler(event)
