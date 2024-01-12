@@ -26,7 +26,6 @@ export class CdkPackageStack extends Stack {
         let allowedOrigins;
         super(scope, id, props);
 
-        //  dynamo table
         const table = new ddb.Table(this, 'qwizgurus_interview_table' + props?.stageName, {
             tableName: 'qwizgurus_interview_table',
             partitionKey: {
@@ -39,8 +38,8 @@ export class CdkPackageStack extends Stack {
             }
         });
 
-        // lambda fetch interview question data
         const getFunction = new lambda.Function(this, 'Function', {
+            functionName: props?.stageName + 'GetFunction',
             runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'get_index.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, 'lambdaHandler')),
@@ -60,8 +59,8 @@ export class CdkPackageStack extends Stack {
 
         table.grantReadWriteData(getFunction)
 
-        // lambda write interview question data.
         const putFunction = new lambda.Function(this, 'putFunction', {
+            functionName: props?.stageName + 'PutFunction',
             runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'put_index.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, 'lambdaHandler')),
@@ -119,7 +118,6 @@ export class CdkPackageStack extends Stack {
         const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
         const getlambdaintegration = new apigateway.LambdaIntegration(getFunction);
 
-        // input your own domain name here
         const hosted_zone_name = 'cullenge.people.aws.dev';
         const hostedZoneID = 'Z08284882SLUMHFLQ7D9I';
         const novaCrossDNSRole = 'arn:aws:iam::524423554500:role/CrossDNSDelegationRole-DO-NOT-DELETE';
@@ -270,41 +268,12 @@ export class CdkPackageStack extends Stack {
             ttl: Duration.minutes(5)
         });
 
-
-        /*
-        commented out sections re cognito
-
-        this links pre-exisitng cognito user pool to a Cognito API Authorizer
-
-        for each api resource method, need to declare this as so:
-
-        {
-        //     authorizer: <api auth const name>,
-        //     authprizaionType: apigateway.AuthorizationType.COGNITO,
-        // }
-
-        */
-
-        // // cognito authZ for user pool already created
-
-        // const qwizUserPool = cognito.UserPool.fromUserPoolId(this, 'user_pool_id', 'eu-west-2_Gzt3IyXug')
-
-        // const apiAuth = new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
-        //     cognitoUserPools: [qwizUserPool]
-        // })
-
         const putresource = api.root.addResource("put-question");
         putresource.addMethod("PUT", putlambdaintegration);
 
         const getresource = api.root.addResource("question");
         getresource.addMethod("GET", getlambdaintegration);
 
-        // {
-        //     authorizer: apiAuth,
-        //     authprizaionType: apigateway.AuthorizationType.COGNITO,
-        // }
-
-        // cloud trail
         const key = new kms.Key(this, 'cloudTrailKey', {
             enableKeyRotation: true,
         });
@@ -320,16 +289,5 @@ export class CdkPackageStack extends Stack {
             encryptionKey: key
         });
     };
-    // private Authorizer(stack: Stack) {
-    //     new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
-    //         cognitoUserPools: [qwizUserPool] // Userpool not yet defined.
-    //     })
-    // }
-};
-
-    // private Authorizer(stack: Stack) {
-    //     new apigateway.CognitoUserPoolsAuthorizer(this, 'apiAuthoriser', {
-    //         cognitoUserPools: [qwizUserPool] // Userpool not yet defined.
-    //     })
-    // }
+}
 

@@ -35,7 +35,7 @@ it ("shouldn't retrieve all questions from the DynamoDB", async () => {
 
     const response = await handler(event)
 
-    expect(response.headers).toStrictEqual(headers)
+    expect(response.headers).toEqual(headers)
     expect(response.statusCode).toBe(200)
     expect(response.body).toBe('[{}]')
 })

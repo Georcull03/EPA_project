@@ -1,8 +1,5 @@
 import { Construct } from 'constructs';
 import { ServiceStage } from './pipeline-stage'
-import { AlphaStage } from './pipeline-alpha-stage';
-import { BetaStage } from "./pipeline-beta-stage";
-import { ProdStage } from "./pipeline-prod-stage";
 import * as cdk from 'aws-cdk-lib';
 import * as codecommit from 'aws-cdk-lib/aws-codecommit';
 import { CodeBuildStep, CodePipeline, CodePipelineSource } from "aws-cdk-lib/pipelines";
@@ -19,7 +16,6 @@ export class QwizPipelineStack extends cdk.Stack {
             ]
         }
 
-        // Use pre-exisitng CodeCommit repository
         const repo = codecommit.Repository.fromRepositoryName(this, 'QwizAppRepo', "QwizApp");
 
         const pipeline = new CodePipeline(this, 'QwizPipeline', {
