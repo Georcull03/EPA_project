@@ -24,6 +24,8 @@ export class ServiceStage extends cdk.Stage {
         const displayName = props?.stageName ? props.stageName : ""
 
         monitoringStack.addLambda(displayName + "GetFunction", displayName + "GetFunction");
-        monitoringStack.addLambda(displayName + "PutFunction", displayName + "PutFunction")
+        monitoringStack.addLambda(displayName + "PutFunction", displayName + "PutFunction");
+        monitoringStack.addApi(displayName + "epa-api", displayName + "epa-api");
+        monitoringStack.addDyanmoDB(displayName + "qwizgurus_interview_table", displayName + "qwizgurus_interview_table");
     }
 }

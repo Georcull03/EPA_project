@@ -60,6 +60,31 @@ export class MonitoringStack extends cdk.Stack {
         statistic: "sum"
     });
 
+    protected readonly apiGateway5XXErrors = new Metric({
+        namespace: "AWS/ApiGateway",
+        metricName: "5XXError",
+        statistic: "sum"
+    });
+
+    protected readonly apiGateway4XXErrors = new Metric({
+        namespace: "AWS/ApiGateway",
+        metricName: "4XXError",
+        statistic: "sum"
+    });
+
+    // Metrics for DynamoDB
+    protected readonly dynamoDBReadCapacity = new Metric({
+        namespace: "AWS/DynamoDB",
+        metricName: "ConsumedReadCapacityUnits",
+        statistic: "sum"
+    });
+
+    protected readonly dynamoDBWriteCapacity = new Metric({
+        namespace: "AWS/DynamoDB",
+        metricName: "ConsumedWriteCapacityUnits",
+        statistic: "sum"
+    });
+
     constructor(scope: Construct, id: string, props: MonitoringStackProps) {
         super(scope, id);
 
@@ -134,4 +159,53 @@ export class MonitoringStack extends cdk.Stack {
             }),
         );
     }
+    public addApi(restApiName: string, displayName: string) {
+
+        const dimensionsMap = {
+            "FunctionName": restApiName
+        };
+
+        new GraphWidget({
+            title: displayName + " API Gateway 5XX Errors",
+            left: [
+                this.apiGateway5XXErrors.with({
+                    dimensionsMap: dimensionsMap,
+                }),
+            ]
+        });
+
+        new GraphWidget({
+            title: displayName + " API Gateway 4XX Errors",
+            left: [
+                this.apiGateway4XXErrors.with({
+                    dimensionsMap: dimensionsMap,
+                }),
+            ]
+        });
+    };
+
+    public addDyanmoDB(tableName: string, displayName: string) {
+
+        const dimensionsMap = {
+            "FunctionName": tableName
+        };
+
+        new GraphWidget({
+            title: displayName + " DynamoDB Read Capacity",
+            left: [
+                this.dynamoDBReadCapacity.with({
+                    dimensionsMap: dimensionsMap,
+                }),
+            ]
+        });
+
+        new GraphWidget({
+            title: displayName + " DynamoDB Write Capacity",
+            left: [
+                this.dynamoDBWriteCapacity.with({
+                    dimensionsMap: dimensionsMap,
+                }),
+            ]
+        });
+};
 }
