@@ -25,7 +25,7 @@ export class ServiceStage extends cdk.Stage {
 
         monitoringStack.addLambda(displayName + "GetFunction", displayName + "GetFunction");
         monitoringStack.addLambda(displayName + "PutFunction", displayName + "PutFunction");
-        monitoringStack.addApi(displayName + "epa-api", displayName + "epa-api");
-        monitoringStack.addDyanmoDB(displayName + "qwizgurus_interview_table", displayName + "qwizgurus_interview_table");
+        monitoringStack.addApi("epa-api", displayName + "epa-api");
+        monitoringStack.addDynamoDB("qwizgurus_interview_table", displayName + "qwizgurus_interview_table");
     }
 }

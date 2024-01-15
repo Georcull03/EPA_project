@@ -72,7 +72,18 @@ export class MonitoringStack extends cdk.Stack {
         statistic: "sum"
     });
 
-    // Metrics for DynamoDB
+    protected readonly apiGatewayLatency = new Metric({
+        namespace: "AWS/ApiGateway",
+        metricName: "Latency",
+        statistic: "sum"
+    });
+
+    protected readonly apiGatewayIntegrationLatency = new Metric({
+        namespace: "AWS/ApiGateway",
+        metricName: "IntegrationLatency",
+        statistic: "sum"
+    });
+
     protected readonly dynamoDBReadCapacity = new Metric({
         namespace: "AWS/DynamoDB",
         metricName: "ConsumedReadCapacityUnits",
@@ -84,6 +95,18 @@ export class MonitoringStack extends cdk.Stack {
         metricName: "ConsumedWriteCapacityUnits",
         statistic: "sum"
     });
+
+    protected readonly successfulRequestLatency = new Metric({
+        namespace: "AWS/DynamoDB",
+        metricName: "SuccessfulRequestLatency",
+        statistic: "average"
+    });
+
+    protected readonly userErrors = new Metric({
+        namespace: "AWS/DynamoDB",
+        metricName: "UserErrors",
+        statistic: "sum"
+    })
 
     constructor(scope: Construct, id: string, props: MonitoringStackProps) {
         super(scope, id);
@@ -162,7 +185,7 @@ export class MonitoringStack extends cdk.Stack {
     public addApi(restApiName: string, displayName: string) {
 
         const dimensionsMap = {
-            "FunctionName": restApiName
+            "ApiName": restApiName
         };
 
         this.Dashboard.addWidgets(
@@ -183,13 +206,29 @@ export class MonitoringStack extends cdk.Stack {
                     }),
                 ]
             }),
+            new GraphWidget({
+                title: displayName + " API Gateway latency",
+                left: [
+                    this.apiGatewayLatency.with({
+                        dimensionsMap: dimensionsMap,
+                    }),
+                ]
+            }),
+            new GraphWidget({
+                title: displayName + " API Gateway Integration Latency",
+                left: [
+                    this.apiGatewayIntegrationLatency.with({
+                        dimensionsMap: dimensionsMap,
+                    }),
+                ]
+            }),
         );
     };
 
-    public addDyanmoDB(tableName: string, displayName: string) {
+    public addDynamoDB(tableName: string, displayName: string) {
 
         const dimensionsMap = {
-            "FunctionName": tableName
+            "TableName": tableName
         };
         this.Dashboard.addWidgets(
             new GraphWidget({
@@ -205,6 +244,22 @@ export class MonitoringStack extends cdk.Stack {
                 title: displayName + " DynamoDB Write Capacity",
                 left: [
                     this.dynamoDBWriteCapacity.with({
+                        dimensionsMap: dimensionsMap,
+                    }),
+                ]
+            }),
+            new GraphWidget({
+                title: displayName + " DynamoDB Request Latency",
+                left: [
+                    this.successfulRequestLatency.with({
+                        dimensionsMap: dimensionsMap,
+                    }),
+                ]
+            }),
+            new GraphWidget({
+                title: displayName + " DynamoDB User Errors",
+                left: [
+                    this.userErrors.with({
                         dimensionsMap: dimensionsMap,
                     }),
                 ]
