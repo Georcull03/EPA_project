@@ -263,7 +263,7 @@ export class MonitoringStack extends cdk.Stack {
         apiLatency.addAlarmAction(new actions.SnsAction(this.topic))
 
         const apiIntegrationLatency = new Alarm(this, displayName + " ApiIntegrationLatency", {
-            alarmName: displayName + " ApiIntegratinoLatency",
+            alarmName: displayName + " ApiIntegrationLatency",
             comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
             threshold: 1000,
             evaluationPeriods: 1,
