@@ -1,6 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import {StackProps} from 'aws-cdk-lib';
 import {Alarm, ComparisonOperator, Dashboard, GraphWidget, Metric} from 'aws-cdk-lib/aws-cloudwatch';
+import * as actions from 'aws-cdk-lib/aws-cloudwatch-actions';
+import {Topic} from 'aws-cdk-lib/aws-sns';
+import * as subscriptions from "aws-cdk-lib/aws-sns-subscriptions";
 import {Construct} from 'constructs';
 
 export interface MonitoringStackProps extends StackProps {
@@ -108,12 +111,17 @@ export class MonitoringStack extends cdk.Stack {
         statistic: "sum"
     });
 
+    protected readonly topic: Topic;
+
     constructor(scope: Construct, id: string, props: MonitoringStackProps) {
         super(scope, id);
 
         this.Dashboard = new Dashboard(this, (props?.dashboardName || ""), {
             dashboardName: (props?.stageName || "") + (props?.dashboardName || "ProdDashboard")
         });
+
+        this.topic = new Topic(this, "AlarmTopic", {topicName: "AlarmTopic"})
+        this.topic.addSubscription(new subscriptions.EmailSubscription("qwizgurus@amazon.com"))
     }
 
     // adds one row to dashboard for each lambda function
@@ -187,8 +195,9 @@ export class MonitoringStack extends cdk.Stack {
             threshold: 1000,
             evaluationPeriods: 1,
             metric: this.duration.with({dimensionsMap: dimensionsMap}),
-            actionsEnabled: true
+            actionsEnabled: true,
         });
+        lambdaDuration.addAlarmAction(new actions.SnsAction(this.topic))
 
         const lambdaErrors= new Alarm(this, displayName + "LambdaErrors", {
             alarmName: displayName + " LambdaErrors",
@@ -198,6 +207,7 @@ export class MonitoringStack extends cdk.Stack {
             metric: this.errors.with({dimensionsMap: dimensionsMap}),
             actionsEnabled: true
         });
+        lambdaErrors.addAlarmAction(new actions.SnsAction(this.topic))
     }
     public addApi(restApiName: string, displayName: string) {
 
@@ -248,6 +258,7 @@ export class MonitoringStack extends cdk.Stack {
             metric: this.apiGatewayLatency.with({dimensionsMap: dimensionsMap}),
             actionsEnabled: true
         });
+        apiLatency.addAlarmAction(new actions.SnsAction(this.topic))
 
         const apiIntegrationLatency = new Alarm(this, displayName + " ApiIntegrationLatency", {
             alarmName: displayName + " ApiIntegratinoLatency",
@@ -257,6 +268,7 @@ export class MonitoringStack extends cdk.Stack {
             metric: this.apiGatewayIntegrationLatency.with({dimensionsMap: dimensionsMap}),
             actionsEnabled: true
         });
+        apiIntegrationLatency.addAlarmAction(new actions.SnsAction(this.topic))
     };
 
     public addDynamoDB(tableName: string, displayName: string) {
@@ -307,6 +319,7 @@ export class MonitoringStack extends cdk.Stack {
             metric: this.dynamoDBReadCapacity.with({dimensionsMap: dimensionsMap}),
             actionsEnabled: true
         });
+        dynamoConsumedRead.addAlarmAction(new actions.SnsAction(this.topic))
 
         const dynamoConsumedWrite = new Alarm(this, displayName + " ConsumedWriteCapacityUnits", {
             alarmName: displayName + " ConsumedWriteCapacityUnits",
@@ -316,5 +329,6 @@ export class MonitoringStack extends cdk.Stack {
             metric: this.dynamoDBWriteCapacity.with({dimensionsMap: dimensionsMap}),
             actionsEnabled: true
         });
+        dynamoConsumedWrite.addAlarmAction(new actions.SnsAction(this.topic))
     };
 }
