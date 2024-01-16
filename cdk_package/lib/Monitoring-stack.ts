@@ -113,6 +113,8 @@ export class MonitoringStack extends cdk.Stack {
 
     protected readonly topic: Topic;
 
+    protected readonly email= "cullenge@amazon.co.uk"
+
     constructor(scope: Construct, id: string, props: MonitoringStackProps) {
         super(scope, id);
 
@@ -121,7 +123,7 @@ export class MonitoringStack extends cdk.Stack {
         });
 
         this.topic = new Topic(this, "AlarmTopic", {topicName: "AlarmTopic"})
-        this.topic.addSubscription(new subscriptions.EmailSubscription("qwizgurus@amazon.com"))
+        this.topic.addSubscription(new subscriptions.EmailSubscription(this.email))
     }
 
     // adds one row to dashboard for each lambda function
