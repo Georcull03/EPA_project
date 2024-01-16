@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
-import { StackProps } from 'aws-cdk-lib';
-import { Dashboard, GraphWidget, Metric } from 'aws-cdk-lib/aws-cloudwatch';
-import { Construct } from 'constructs';
+import {StackProps} from 'aws-cdk-lib';
+import {Alarm, ComparisonOperator, Dashboard, GraphWidget, Metric} from 'aws-cdk-lib/aws-cloudwatch';
+import {Construct} from 'constructs';
 
 export interface MonitoringStackProps extends StackProps {
     stageName?: string;
@@ -106,7 +106,7 @@ export class MonitoringStack extends cdk.Stack {
         namespace: "AWS/DynamoDB",
         metricName: "UserErrors",
         statistic: "sum"
-    })
+    });
 
     constructor(scope: Construct, id: string, props: MonitoringStackProps) {
         super(scope, id);
@@ -181,6 +181,23 @@ export class MonitoringStack extends cdk.Stack {
                 ]
             }),
         );
+        const lambdaDuration = new Alarm(this, displayName + " LambdaDuration", {
+            alarmName: displayName + " LambdaDuration",
+            comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+            threshold: 1000,
+            evaluationPeriods: 1,
+            metric: this.duration.with({dimensionsMap: dimensionsMap}),
+            actionsEnabled: true
+        });
+
+        const lambdaErrors= new Alarm(this, displayName + "LambdaErrors", {
+            alarmName: displayName + " LambdaErrors",
+            comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+            threshold: 0,
+            evaluationPeriods: 1,
+            metric: this.errors.with({dimensionsMap: dimensionsMap}),
+            actionsEnabled: true
+        });
     }
     public addApi(restApiName: string, displayName: string) {
 
@@ -223,6 +240,23 @@ export class MonitoringStack extends cdk.Stack {
                 ]
             }),
         );
+        const apiLatency = new Alarm(this, displayName + " ApiLatency", {
+            alarmName: displayName + " ApiLatency",
+            comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+            threshold: 1000,
+            evaluationPeriods: 1,
+            metric: this.apiGatewayLatency.with({dimensionsMap: dimensionsMap}),
+            actionsEnabled: true
+        });
+
+        const apiIntegrationLatency = new Alarm(this, displayName + " ApiIntegrationLatency", {
+            alarmName: displayName + " ApiIntegratinoLatency",
+            comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+            threshold: 1000,
+            evaluationPeriods: 1,
+            metric: this.apiGatewayIntegrationLatency.with({dimensionsMap: dimensionsMap}),
+            actionsEnabled: true
+        });
     };
 
     public addDynamoDB(tableName: string, displayName: string) {
@@ -265,5 +299,22 @@ export class MonitoringStack extends cdk.Stack {
                 ]
             }),
         );
+        const dynamoConsumedRead = new Alarm(this, displayName + " ConsumedReadCapacityUnits", {
+            alarmName: displayName + " ConsumedReadCapacityUnits",
+            comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+            threshold: 10000,
+            evaluationPeriods: 1,
+            metric: this.dynamoDBReadCapacity.with({dimensionsMap: dimensionsMap}),
+            actionsEnabled: true
+        });
+
+        const dynamoConsumedWrite = new Alarm(this, displayName + " ConsumedWriteCapacityUnits", {
+            alarmName: displayName + " ConsumedWriteCapacityUnits",
+            comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+            threshold: 5000,
+            evaluationPeriods: 1,
+            metric: this.dynamoDBWriteCapacity.with({dimensionsMap: dimensionsMap}),
+            actionsEnabled: true
+        });
     };
 }
