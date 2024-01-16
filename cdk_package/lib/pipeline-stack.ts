@@ -3,7 +3,6 @@ import { ServiceStage } from './pipeline-stage'
 import * as cdk from 'aws-cdk-lib';
 import * as codecommit from 'aws-cdk-lib/aws-codecommit';
 import {CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep} from "aws-cdk-lib/pipelines";
-import {command} from "aws-cdk/lib/commands/docs";
 
 export class QwizPipelineStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
