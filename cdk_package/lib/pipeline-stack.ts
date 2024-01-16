@@ -2,7 +2,8 @@ import { Construct } from 'constructs';
 import { ServiceStage } from './pipeline-stage'
 import * as cdk from 'aws-cdk-lib';
 import * as codecommit from 'aws-cdk-lib/aws-codecommit';
-import { CodeBuildStep, CodePipeline, CodePipelineSource } from "aws-cdk-lib/pipelines";
+import {CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep} from "aws-cdk-lib/pipelines";
+import {command} from "aws-cdk/lib/commands/docs";
 
 export class QwizPipelineStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -17,12 +18,13 @@ export class QwizPipelineStack extends cdk.Stack {
         }
 
         const repo = codecommit.Repository.fromRepositoryName(this, 'QwizAppRepo', "QwizApp");
+        const source = CodePipelineSource.codeCommit(repo, 'main');
 
         const pipeline = new CodePipeline(this, 'QwizPipeline', {
             pipelineName: 'QwizAppPipeline_us_west_1',
             crossAccountKeys: true,
             synth: new CodeBuildStep('SynthStep', {
-                input: CodePipelineSource.codeCommit(repo, 'main'),
+                input: source,
                 installCommands: [
                     'npm install -g aws-cdk',
                     'npm install -g typescript',
@@ -51,6 +53,17 @@ export class QwizPipelineStack extends cdk.Stack {
             });
 
             const stage = pipeline.addStage(deployment)
+            stage.addPre(new ShellStep("Testing", {
+                input: source,
+                commands: ['npm run test']
+            }));
+
+            stage.addPost(new ShellStep("TestEndpoint", {
+                commands: [
+                    'curl -Ssf https://qwiz.cullenge.people.aws.dev/',
+                    'curl -Ssf https://api.cullenge.people.aws.dev/question'
+                ]
+            }))
         })
     }
 }
