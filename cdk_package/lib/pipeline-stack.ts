@@ -3,6 +3,7 @@ import { ServiceStage } from './pipeline-stage'
 import * as cdk from 'aws-cdk-lib';
 import * as codecommit from 'aws-cdk-lib/aws-codecommit';
 import {CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep} from "aws-cdk-lib/pipelines";
+import {listOfStrings} from "aws-sdk/clients/iotfleetwise";
 
 export class QwizPipelineStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -57,11 +58,20 @@ export class QwizPipelineStack extends cdk.Stack {
                 commands: ['cd cdk_package', 'npm install', 'npm run build', 'npm run test']
             }));
 
-            stage.addPost(new ShellStep("TestEndpoint", {
-                commands: [
-                    'curl -Ssf https://qwiz.cullenge.people.aws.dev/',
-                    'curl -Ssf https://api.cullenge.people.aws.dev/question'
+            let curlCommands: string[]
+
+            if (stage.stageName == 'alpha' || 'beta') {
+                 curlCommands = [
+                    `curl -Ssf https://${stage.stageName}qwiz.cullenge.people.aws.dev/`,
+                    `curl -Ssf https://${stage.stageName}api.cullenge.people.aws.dev/question'`
                 ]
+            } else {
+                 curlCommands = ['curl -Ssf https://qwiz.cullenge.people.aws.dev/',
+                    'curl -Ssf https://api.cullenge.people.aws.dev/question']
+            }
+
+            stage.addPost(new ShellStep("TestEndpoint", {
+                commands: [curlCommands.toString()]
             }))
         })
     }
