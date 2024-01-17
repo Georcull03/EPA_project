@@ -194,7 +194,7 @@ export class MonitoringStack extends cdk.Stack {
         const lambdaDuration = new Alarm(this, displayName + " LambdaDuration", {
             alarmName: displayName + " LambdaDuration",
             comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-            threshold: 1000,
+            threshold: 3500,
             evaluationPeriods: 1,
             metric: this.duration.with({dimensionsMap: dimensionsMap}),
             actionsEnabled: true,
@@ -255,7 +255,7 @@ export class MonitoringStack extends cdk.Stack {
         const apiLatency = new Alarm(this, displayName + " ApiLatency", {
             alarmName: displayName + " ApiLatency",
             comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-            threshold: 2000,
+            threshold: 2500,
             evaluationPeriods: 1,
             metric: this.apiGatewayLatency.with({dimensionsMap: dimensionsMap}),
             actionsEnabled: true
@@ -265,7 +265,7 @@ export class MonitoringStack extends cdk.Stack {
         const apiIntegrationLatency = new Alarm(this, displayName + " ApiIntegrationLatency", {
             alarmName: displayName + " ApiIntegrationLatency",
             comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-            threshold: 2000,
+            threshold: 2500,
             evaluationPeriods: 1,
             metric: this.apiGatewayIntegrationLatency.with({dimensionsMap: dimensionsMap}),
             actionsEnabled: true
