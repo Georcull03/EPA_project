@@ -54,7 +54,7 @@ export class QwizPipelineStack extends cdk.Stack {
             const stage = pipeline.addStage(deployment)
             stage.addPre(new ShellStep("Testing", {
                 input: source,
-                commands: ['npm run test']
+                commands: ['cd cdk_package', 'npm install', 'npm run build', 'npm run test']
             }));
 
             stage.addPost(new ShellStep("TestEndpoint", {
