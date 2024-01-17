@@ -61,11 +61,11 @@ export class QwizPipelineStack extends cdk.Stack {
             let curlApi: string
 
             if (stage.stageName != 'prod') {
-                curlFrontend = 'curl -Ssf https://qwiz.cullenge.people.aws.dev/'
-                curlApi = 'curl -Ssf https://api.cullenge.people.aws.dev/question'
-            } else {
                 curlFrontend = `curl -Ssf https://${stage.stageName}qwiz.cullenge.people.aws.dev/`
                 curlApi = `curl -Ssf https://${stage.stageName}api.cullenge.people.aws.dev/question`
+            } else {
+                curlFrontend = 'curl -Ssf https://qwiz.cullenge.people.aws.dev/'
+                curlApi = 'curl -Ssf https://api.cullenge.people.aws.dev/question'
             }
 
             stage.addPost(new ShellStep("TestEndpoint", {
