@@ -109,7 +109,7 @@ export class CdkPackageStack extends Stack {
             defaultCorsPreflightOptions: {
                 allowOrigins: allowedOrigins,
                 allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
-                allowMethods: ["GET", "POST", "OPTIONS"]
+                allowMethods: ["GET", "PUT", "OPTIONS"]
             }
         });
 
