@@ -67,7 +67,8 @@ export default function App() {
 
     const handleClick = () => {
         if (level != '' && question != '' && Answer != '' && ManagerIC != '' && Role != '') {
-            location.pathname = "home/index.html"
+            // location.pathname = "home/index.html"
+            console.log("This is running")
         }
     }
 
