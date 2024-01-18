@@ -51,11 +51,6 @@ export default function App() {
             if (response.ok) {
                 // Handle successful response
                 console.log('PUT request successful');
-                setLevel('');
-                setQuestion('');
-                setAnswer('');
-                setManagerIC('');
-                setRole('');
             } else {
                 // Handle error response
                 console.error('PUT request failed');
@@ -70,6 +65,7 @@ export default function App() {
 
     const handleClick = () => {
         if (level != '' && question != '' && Answer != '' && ManagerIC != '' && Role != '') {
+            setTimeout(handleClick, 5000)
             location.pathname = "home/index.html"
         }
     }
