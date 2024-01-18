@@ -95,7 +95,7 @@ export class CdkPackageStack extends Stack {
 
         bucket.addCorsRule({
             allowedOrigins: allowedOrigins,
-            allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.POST],
+            allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.PUT],
             allowedHeaders: ["*"],
             exposedHeaders: ["Access-Control-Allow-Origin"]
         })
@@ -109,7 +109,7 @@ export class CdkPackageStack extends Stack {
             defaultCorsPreflightOptions: {
                 allowOrigins: allowedOrigins,
                 allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
-                allowMethods: ["GET", "POST"]
+                allowMethods: ["GET", "POST", "OPTIONS"]
             }
         });
 

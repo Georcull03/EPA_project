@@ -28,6 +28,16 @@ export const handler = async (event: { requestContext: any; body: any; routeKey?
 
     try {
         switch(event.requestContext.httpMethod) {
+            case "OPTIONS":
+                return {
+                    statusCode: 200,
+                    headers: {
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Methods": "OPTIONS, PUT",
+                        "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
+                    },
+                    body: JSON.stringify({ message: "OPTIONS request handled successfully" }),
+                };
             case "PUT":
                 let requestJSON = JSON.parse(event.body);
                 await dynamo.send(
