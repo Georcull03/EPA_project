@@ -25,9 +25,6 @@ export const handler = async (event: { requestContext: any; }) => {
     };
     console.log(event)
 
-    // switch(event.routeKey)
-    // switch (event.requestContext.httpMethod)
-
     try {
         switch (event.requestContext.httpMethod) {
             case "GET":
