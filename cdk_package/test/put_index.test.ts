@@ -51,7 +51,7 @@ it ("can't put question into the DynamoDB", async () => {
 
     const response = await handler(wrong_event)
     expect(response.statusCode).toBe(200)
-    expect(response.headers).toEqual("")
+    expect(response.headers).toEqual(headers)
     expect(response.body).toBe("\"Put item undefined\"")
 
 })
