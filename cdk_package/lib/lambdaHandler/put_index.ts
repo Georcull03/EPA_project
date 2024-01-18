@@ -7,8 +7,6 @@ import {
     DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
 
-// import { marshall } from "@aws-sdk/util-dynamodb";
-
 const client = new DynamoDBClient({});
 
 const dynamo = DynamoDBDocumentClient.from(client);
@@ -22,11 +20,11 @@ export const handler = async (event: { requestContext: any; body: any; routeKey?
     let statusCode = 200;
     const headers = {
         "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': "*",
+        'Access-Control-Allow-Methods': "OPTIONS, GET, POST , PUT, DELETE",
+        'Access-Control-Allow-Headers': "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent"
     };
     console.log(event)
-
-    // switch(event.routeKey)
-    // switch (event.requestContext.httpMethod)
 
     try {
         switch(event.requestContext.httpMethod) {

@@ -20,7 +20,10 @@ const malformed_question = {
 }
 
 const headers = {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    'Access-Control-Allow-Origin': "*",
+    'Access-Control-Allow-Methods': "OPTIONS, GET, POST , PUT, DELETE",
+    'Access-Control-Allow-Headers': "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent"
 };
 
 const event = {
@@ -48,7 +51,7 @@ it ("can't put question into the DynamoDB", async () => {
 
     const response = await handler(wrong_event)
     expect(response.statusCode).toBe(200)
-    expect(response.headers).toStrictEqual(headers)
+    expect(response.headers).toEqual("")
     expect(response.body).toBe("\"Put item undefined\"")
 
 })
