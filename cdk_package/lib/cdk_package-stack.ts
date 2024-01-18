@@ -85,9 +85,12 @@ export class CdkPackageStack extends Stack {
         });
 
         if (props?.stageName != 'prod') {
-            allowedOrigins = ["https://" + props?.stageName + "qwiz.cullenge.people.aws.dev"];
+            allowedOrigins = [
+                "https://" + props?.stageName + "qwiz.cullenge.people.aws.dev",
+                "https://" + props?.stageName + "api.cullenge.people.aws.dev/question"
+            ];
         } else {
-            allowedOrigins = ["https://qwiz.cullenge.people.aws.dev"];
+            allowedOrigins = ["https://qwiz.cullenge.people.aws.dev", "https://api.cullenge.people.aws.dev"];
         }
 
         bucket.addCorsRule({
