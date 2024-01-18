@@ -48,6 +48,8 @@ export default function App() {
                 }),
             });
 
+            console.log(response);
+
             if (response.ok) {
                 // Handle successful response
                 console.log('PUT request successful');
@@ -65,7 +67,6 @@ export default function App() {
 
     const handleClick = () => {
         if (level != '' && question != '' && Answer != '' && ManagerIC != '' && Role != '') {
-            setTimeout(handleClick, 5000)
             location.pathname = "home/index.html"
         }
     }
