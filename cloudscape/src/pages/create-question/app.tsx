@@ -25,7 +25,7 @@ export default function App() {
     const [ManagerIC, setManagerIC] = useState('');
     const [Role, setRole] = useState('');
 
-    const handleSubmit = async (event:  React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         const url = createApiPath()
@@ -89,7 +89,33 @@ export default function App() {
             contentType="form"
             breadcrumbs={<Breadcrumbs active={{text: 'Create question', href: 'index.html'}}/>}
             navigation={<Navigation/>}
-            tools={<HelpPanel header={<h2>Help panel</h2>}/>}
+            tools={<HelpPanel header={<h2>Help panel
+                <div>
+                    <p>
+                        This is the page where you create your questions!
+                        Make sure you fill out every field otherwise your question won't be submitted and you will
+                        see some nasty red fields pop up.
+                    </p>
+
+                    <h3>The fields</h3>
+                    <ul>
+                        <li>Level</li>
+                        <li>Question</li>
+                        <li>Answer</li>
+                        <li>Manager/IC</li>
+                        <li>Role</li>
+                    </ul>
+
+                    <h4>Fields explained</h4>
+                    <p>
+                        <li>Level - the level this question should be asked for.</li>
+                        <li>Question - Your brilliant question that others will use.</li>
+                        <li>Answer - Your answer to your brilliant question.</li>
+                        <li>Manager/IC - Is this for a Manager or an IC.</li>
+                        <li>Role - What Role should this question be aimed at.</li>
+                    </p>
+                </div>
+            </h2>}/>}
         >
             <ContentLayout
                 header={
@@ -133,7 +159,7 @@ export default function App() {
                                     >
                                         <Input
                                             value={level}
-                                            onChange={({ detail }) => setLevel(detail.value)}
+                                            onChange={({detail}) => setLevel(detail.value)}
                                             type="text"
                                         />
                                     </FormField>
@@ -145,7 +171,7 @@ export default function App() {
                                     >
                                         <Input
                                             value={question}
-                                            onChange={({ detail }) => setQuestion(detail.value)}
+                                            onChange={({detail}) => setQuestion(detail.value)}
                                             type="text"
                                         />
                                     </FormField>
@@ -157,7 +183,7 @@ export default function App() {
                                     >
                                         <Input
                                             value={Answer}
-                                            onChange={({ detail }) => setAnswer(detail.value)}
+                                            onChange={({detail}) => setAnswer(detail.value)}
                                             type="text"
                                         />
                                     </FormField>
@@ -169,7 +195,7 @@ export default function App() {
                                     >
                                         <Input
                                             value={ManagerIC}
-                                            onChange={({ detail }) => setManagerIC(detail.value)}
+                                            onChange={({detail}) => setManagerIC(detail.value)}
                                             type="text"
                                         />
                                     </FormField>
@@ -181,7 +207,7 @@ export default function App() {
                                     >
                                         <Input
                                             value={Role}
-                                            onChange={({ detail }) => setRole(detail.value)}
+                                            onChange={({detail}) => setRole(detail.value)}
                                             type="text"
                                         />
                                     </FormField>
