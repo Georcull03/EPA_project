@@ -29,7 +29,7 @@ export class QwizPipelineStack extends cdk.Stack {
                     'npm install -g typescript',
                 ],
                 commands: [
-                    // 'cdk --version',
+                    'cdk --version',
                     // 'tsc --version',
                     // 'pwd',
                     // 'ls',
