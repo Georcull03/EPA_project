@@ -38,7 +38,11 @@ export class QwizPipelineStack extends cdk.Stack {
                     'npm run build',
                     'cdk synth',
                     'ls -al',
-                    'npm run test'
+                    'npm run test',
+                    'cd ../cloudscape',
+                    'npm install',
+                    'npm run build',
+                    'npm run dev'
                 ],
                 primaryOutputDirectory: 'cdk_package/cdk.out'
             })
@@ -62,10 +66,10 @@ export class QwizPipelineStack extends cdk.Stack {
 
             if (stage.stageName != 'prod') {
                 curlFrontend = `curl -Ssf https://${stage.stageName}qwiz.cullenge.people.aws.dev/`
-                curlApi = `curl -Ssf https://${stage.stageName}api.cullenge.people.aws.dev/question`
+                curlApi = `curl -Ssf https://${stage.stageName}api.cullenge.people.aws.dev/question | jq`
             } else {
                 curlFrontend = 'curl -Ssf https://qwiz.cullenge.people.aws.dev/'
-                curlApi = 'curl -Ssf https://api.cullenge.people.aws.dev/question'
+                curlApi = 'curl -Ssf https://api.cullenge.people.aws.dev/question | jq'
             }
 
             stage.addPost(new ShellStep("TestEndpoint", {
