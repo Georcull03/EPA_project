@@ -18,7 +18,7 @@ export class QwizPipelineStack extends cdk.Stack {
 
         const repo = codecommit.Repository.fromRepositoryName(this, 'QwizAppRepo', "QwizApp");
         const source = CodePipelineSource.codeCommit(repo, 'main');
-
+//
         const pipeline = new CodePipeline(this, 'QwizPipeline', {
             pipelineName: 'QwizAppPipeline_us_west_1',
             crossAccountKeys: true,
