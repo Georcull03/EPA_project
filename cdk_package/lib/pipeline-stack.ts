@@ -41,7 +41,7 @@ export class QwizPipelineStack extends cdk.Stack {
                     'npm run test',
                     'cd ../cloudscape',
                     'npm install',
-                    'npm run build',
+                    'npm run build'
                 ],
                 primaryOutputDirectory: 'cdk_package/cdk.out'
             })
