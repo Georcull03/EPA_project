@@ -29,19 +29,19 @@ export class QwizPipelineStack extends cdk.Stack {
                     'npm install -g typescript',
                 ],
                 commands: [
-                    'cdk --version',
-                    'tsc --version',
-                    'pwd',
-                    'ls',
-                    'cd cdk_package',
-                    'npm install',
-                    'npm run build',
-                    'cdk synth',
-                    'ls -al',
-                    'npm run test',
-                    'cd ../cloudscape',
-                    'npm install',
-                    'npm run build'
+                    // 'cdk --version',
+                    // 'tsc --version',
+                    // 'pwd',
+                    // 'ls',
+                    // 'cd cdk_package',
+                    // 'npm install',
+                    // 'npm run build',
+                    // 'cdk synth',
+                    // 'ls -al',
+                    // 'npm run test',
+                    // 'cd ../cloudscape',
+                    // 'npm install',
+                    // 'npm run build'
                 ],
                 primaryOutputDirectory: 'cdk_package/cdk.out'
             })
