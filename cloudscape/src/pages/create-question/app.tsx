@@ -10,11 +10,14 @@ import ContentLayout from '@cloudscape-design/components/content-layout';
 import FormField from '@cloudscape-design/components/form-field';
 import Container from '@cloudscape-design/components/container';
 import Input from '@cloudscape-design/components/input'
+import Flashbar, {FlashbarProps} from "@cloudscape-design/components/flashbar";
 
 import Breadcrumbs from '../../components/breadcrumbs';
 import Navigation from '../../components/navigation';
 import ShellLayout from '../../layouts/shell';
 import {createApiPath} from "../../utils/helpers";
+import MessageDefinition = FlashbarProps.MessageDefinition;
+import {ProgressBar} from "@cloudscape-design/components";
 
 const isEmptyString = (value: string) => !value?.length;
 export default function App() {
@@ -24,6 +27,7 @@ export default function App() {
     const [Answer, setAnswer] = useState('');
     const [ManagerIC, setManagerIC] = useState('');
     const [Role, setRole] = useState('');
+    const [flashbar, setFlashbar] = useState<MessageDefinition[]>([]);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -53,9 +57,42 @@ export default function App() {
             if (response.ok) {
                 // Handle successful response
                 console.log('PUT request successful');
+                setFlashbar([{
+                    type: "in-progress",
+                    content: (
+                        <ProgressBar
+                            label="Uploading question"
+                            description="This tells you when your question is uploaded"
+                            value={37} // Should implement func to increase
+                            variant="flash"
+                        />
+                    ),
+                    dismissible: true,
+                    dismissLabel: "Dismiss",
+                    onDismiss: () => setFlashbar([]),
+                    id: "progress_bar"
+                }])
+                setFlashbar([{
+                    type: "success",
+                    content: "Success! Interview question uploaded.",
+                    action: <Button href="home/index.html" variant="link">View Questions</Button>,
+                    dismissible: true,
+                    dismissLabel: "Dismiss",
+                    onDismiss: () => setFlashbar([]),
+                    id: "success_message"
+                }])
             } else {
                 // Handle error response
                 console.error('PUT request failed');
+                setFlashbar([{
+                    type: "error",
+                    header: "Failed to create question",
+                    content: "Please try again",
+                    dismissible: true,
+                    dismissLabel: "Dismiss",
+                    onDismiss: () => setFlashbar([]),
+                    id: "error_message"
+                }])
             }
         } catch (error) {
             // Handle fetch error
@@ -65,11 +102,11 @@ export default function App() {
         setIsFormSubmitted(true);
     };
 
-    const handleClick = () => {
-        if (level != '' && question != '' && Answer != '' && ManagerIC != '' && Role != '' && isFormSubmitted == true) {
-            location.pathname = "home/index.html"
-        }
-    }
+    // const handleClick = () => {
+    //     if (level != '' && question != '' && Answer != '' && ManagerIC != '' && Role != '') {
+    //         location.pathname = "home/index.html"
+    //     }
+    // }
 
     useEffect(() => {
         const urlSearchParams = new URLSearchParams(window.location.search);
@@ -136,13 +173,14 @@ export default function App() {
                                 <Button href="/home/index.html" variant="link">
                                     Return
                                 </Button>
-                                <Button formAction="submit" variant="primary" onClick={handleClick}>
+                                <Button formAction="submit" variant="primary">
                                     Create Question
                                 </Button>
                             </SpaceBetween>
                         }
                     >
                         <SpaceBetween size="l">
+                            <Flashbar items={flashbar} stackItems/>
                             <Container
                                 header={
                                     <Header variant="h2">
