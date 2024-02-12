@@ -27,30 +27,16 @@ export default function App() {
     const [ManagerIC, setManagerIC] = useState('');
     const [Role, setRole] = useState('');
     const [flashbar, setFlashbar] = useState<any>([]);
-
-    const progressbarComponent = () => {
-        const [progressValue, setProgressValue] = useState(0);
-
-        useEffect(() => {
-            const timer = setInterval(() => {
-                setProgressValue(prevProgress => prevProgress < 100 ? prevProgress + 20 : prevProgress);
-            }, 1000);
-
-            return () => clearInterval(timer);
-        }, []);
-
-        return (
-        <ProgressBar
-            label="Uploading question"
-            description="This tells you when your question is uploaded"
-            value={progressValue}
-            variant="flash"
-        />
-        )
-    };
+    const [value, setValue] = useState(0);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+
+        // const progressValue = ()=> {
+        //      for (let number = 0; number < 4; number++) {
+        //         setValue(value + 20)
+        //     }
+        // }
 
         const url = createApiPath()
 
@@ -79,7 +65,12 @@ export default function App() {
                 console.log('PUT request successful');
                 setFlashbar([{
                     type: "in-progress",
-                    content: progressbarComponent,
+                    content: <ProgressBar
+                        label="Uploading question"
+                        description="This tells you when your question is uploaded"
+                        value={20}
+                        variant="flash"
+                    />,
                     dismissible: true,
                     dismissLabel: "Dismiss",
                     onDismiss: () => setFlashbar([]),
@@ -88,7 +79,7 @@ export default function App() {
                 setFlashbar([{
                     type: "success",
                     content: "Success! Interview question uploaded.",
-                    action: <Button href="home/index.html" variant="link">View Questions</Button>,
+                    action: <Button onClick={handleClick} variant="link">View Questions</Button>,
                     dismissible: true,
                     dismissLabel: "Dismiss",
                     onDismiss: () => setFlashbar([]),
@@ -115,11 +106,11 @@ export default function App() {
         setIsFormSubmitted(true);
     };
 
-    // const handleClick = () => {
-    //     if (level != '' && question != '' && Answer != '' && ManagerIC != '' && Role != '') {
-    //         location.pathname = "home/index.html"
-    //     }
-    // }
+    const handleClick = () => {
+        if (level != '' && question != '' && Answer != '' && ManagerIC != '' && Role != '') {
+            location.pathname = "home/index.html"
+        }
+    }
 
     useEffect(() => {
         const urlSearchParams = new URLSearchParams(window.location.search);
