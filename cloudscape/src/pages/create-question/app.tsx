@@ -32,12 +32,6 @@ export default function App() {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // const progressValue = ()=> {
-        //      for (let number = 0; number < 4; number++) {
-        //         setValue(value + 20)
-        //     }
-        // }
-
         const url = createApiPath()
 
         // Your API Gateway URL for the PUT request
@@ -64,21 +58,8 @@ export default function App() {
                 // Handle successful response
                 console.log('PUT request successful');
                 setFlashbar([{
-                    type: "in-progress",
-                    content: <ProgressBar
-                        label="Uploading question"
-                        description="This tells you when your question is uploaded"
-                        value={20}
-                        variant="flash"
-                    />,
-                    dismissible: true,
-                    dismissLabel: "Dismiss",
-                    onDismiss: () => setFlashbar([]),
-                    id: "progress_bar"
-                }])
-                setFlashbar([{
                     type: "success",
-                    content: "Success! Interview question uploaded.",
+                    content: "Success! Interview question uploaded. Click View Questions to view all questions",
                     action: <Button onClick={handleClick} variant="link">View Questions</Button>,
                     dismissible: true,
                     dismissLabel: "Dismiss",
