@@ -16,7 +16,6 @@ import Breadcrumbs from '../../components/breadcrumbs';
 import Navigation from '../../components/navigation';
 import ShellLayout from '../../layouts/shell';
 import {createApiPath} from "../../utils/helpers";
-import {ProgressBar} from "@cloudscape-design/components";
 
 const isEmptyString = (value: string) => !value?.length;
 export default function App() {
@@ -27,7 +26,6 @@ export default function App() {
     const [ManagerIC, setManagerIC] = useState('');
     const [Role, setRole] = useState('');
     const [flashbar, setFlashbar] = useState<any>([]);
-    const [value, setValue] = useState(0);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
