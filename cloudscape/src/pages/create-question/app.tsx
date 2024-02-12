@@ -184,7 +184,7 @@ export default function App() {
                         }
                     >
                         <SpaceBetween size="l">
-                            <Flashbar items={flashbar} stackItems/>
+                            <Flashbar items={flashbar} stackItems={true}/>
                             <Container
                                 header={
                                     <Header variant="h2">
