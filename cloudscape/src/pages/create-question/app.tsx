@@ -10,13 +10,12 @@ import ContentLayout from '@cloudscape-design/components/content-layout';
 import FormField from '@cloudscape-design/components/form-field';
 import Container from '@cloudscape-design/components/container';
 import Input from '@cloudscape-design/components/input'
-import Flashbar, {FlashbarProps} from "@cloudscape-design/components/flashbar";
+import Flashbar from "@cloudscape-design/components/flashbar";
 
 import Breadcrumbs from '../../components/breadcrumbs';
 import Navigation from '../../components/navigation';
 import ShellLayout from '../../layouts/shell';
 import {createApiPath} from "../../utils/helpers";
-import MessageDefinition = FlashbarProps.MessageDefinition;
 import {ProgressBar} from "@cloudscape-design/components";
 
 const isEmptyString = (value: string) => !value?.length;
@@ -27,7 +26,7 @@ export default function App() {
     const [Answer, setAnswer] = useState('');
     const [ManagerIC, setManagerIC] = useState('');
     const [Role, setRole] = useState('');
-    const [flashbar, setFlashbar] = useState<MessageDefinition[]>([]);
+    const [flashbar, setFlashbar] = useState<any>([]);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
