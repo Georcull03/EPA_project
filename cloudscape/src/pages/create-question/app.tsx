@@ -28,6 +28,27 @@ export default function App() {
     const [Role, setRole] = useState('');
     const [flashbar, setFlashbar] = useState<any>([]);
 
+    const progressbarComponent = () => {
+        const [progressValue, setProgressValue] = useState(0);
+
+        useEffect(() => {
+            const timer = setInterval(() => {
+                setProgressValue(prevProgress => prevProgress < 100 ? prevProgress + 20 : prevProgress);
+            }, 1000);
+
+            return () => clearInterval(timer);
+        }, []);
+
+        return (
+        <ProgressBar
+            label="Uploading question"
+            description="This tells you when your question is uploaded"
+            value={progressValue}
+            variant="flash"
+        />
+        )
+    };
+
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
@@ -58,14 +79,7 @@ export default function App() {
                 console.log('PUT request successful');
                 setFlashbar([{
                     type: "in-progress",
-                    content: (
-                        <ProgressBar
-                            label="Uploading question"
-                            description="This tells you when your question is uploaded"
-                            value={37} // Should implement func to increase
-                            variant="flash"
-                        />
-                    ),
+                    content: progressbarComponent,
                     dismissible: true,
                     dismissLabel: "Dismiss",
                     onDismiss: () => setFlashbar([]),
