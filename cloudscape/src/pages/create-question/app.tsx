@@ -32,7 +32,6 @@ export default function App() {
 
         const url = createApiPath()
 
-        // Your API Gateway URL for the PUT request
         const apiUrl = url + '/put-question';
 
         try {
@@ -53,7 +52,6 @@ export default function App() {
             console.log(response);
 
             if (response.ok) {
-                // Handle successful response
                 console.log('PUT request successful');
                 setFlashbar([{
                     type: "success",
@@ -65,7 +63,6 @@ export default function App() {
                     id: "success_message"
                 }])
             } else {
-                // Handle error response
                 console.error('PUT request failed');
                 setFlashbar([{
                     type: "error",
@@ -78,7 +75,6 @@ export default function App() {
                 }])
             }
         } catch (error) {
-            // Handle fetch error
             console.error('Error during PUT request:', error);
         }
 

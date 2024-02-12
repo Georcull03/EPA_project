@@ -6,7 +6,7 @@ import HelpPanel from '@cloudscape-design/components/help-panel';
 import Breadcrumbs from '../../components/breadcrumbs';
 import Navigation from '../../components/navigation';
 import ShellLayout from '../../layouts/shell';
-import VariationTable from './components/flavors-table';
+import VariationTable from './components/question-table';
 
 export default function App() {
   return (
