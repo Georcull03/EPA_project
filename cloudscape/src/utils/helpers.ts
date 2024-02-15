@@ -6,9 +6,9 @@ export function ApiPath() {
 
     console.log(domainCDN)
 
-    const hasPrefix = domainCDN.includes("alpha" || "beta")
+    const hasPrefix = domainCDN.includes('prod')
 
-    if (hasPrefix == true) {
+    if (hasPrefix == false) {
         const prefix = window.location.host.toLowerCase().split('.')[0]
         const usePrefix = prefix.substring(0, prefix.length - 4)
         console.log('this is the prefix created: ' + usePrefix)
