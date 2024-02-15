@@ -26,14 +26,14 @@ export class CdkPackageStack extends Stack {
         let allowedOrigins;
         super(scope, id, props);
 
-        const table = new ddb.Table(this, 'qwizgurus_interview_table' + props?.stageName, {
-            tableName: 'qwizgurus_interview_table',
+        const table = new ddb.Table(this, '{tableName}' + props?.stageName, {
+            tableName: '{tableName}',
             partitionKey: {
-                name: 'level',
+                name: '{level}',
                 type: ddb.AttributeType.STRING,
             },
             sortKey: {
-                name: 'question',
+                name: '{question}',
                 type: ddb.AttributeType.STRING
             }
         });
@@ -80,17 +80,17 @@ export class CdkPackageStack extends Stack {
 
         table.grantReadWriteData(putFunction)
 
-        const bucket = new s3.Bucket(this, 'epa-bucket', {
+        const bucket = new s3.Bucket(this, '{bucketName}', {
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         });
 
         if (props?.stageName != 'prod') {
             allowedOrigins = [
-                "https://" + props?.stageName + "qwiz.cullenge.people.aws.dev",
-                "https://" + props?.stageName + "api.cullenge.people.aws.dev/question"
+                "https://" + props?.stageName + "{domainName}",
+                "https://" + props?.stageName + "{apiDomain}"
             ];
         } else {
-            allowedOrigins = ["https://qwiz.cullenge.people.aws.dev", "https://api.cullenge.people.aws.dev"];
+            allowedOrigins = ["{domainName}", "{apiDomain}"];
         }
 
         bucket.addCorsRule({
@@ -121,9 +121,9 @@ export class CdkPackageStack extends Stack {
         const putlambdaintegration = new apigateway.LambdaIntegration(putFunction);
         const getlambdaintegration = new apigateway.LambdaIntegration(getFunction);
 
-        const hosted_zone_name = 'cullenge.people.aws.dev';
-        const hostedZoneID = 'Z08284882SLUMHFLQ7D9I';
-        const novaCrossDNSRole = 'arn:aws:iam::524423554500:role/CrossDNSDelegationRole-DO-NOT-DELETE';
+        const hosted_zone_name = '{hostedZoneName}';
+        const hostedZoneID = '{hostedZoneID}';
+        const novaCrossDNSRole = '{novaCrossDNSRole}';
 
         let qwiz_api_zone_name: string;
 
@@ -169,8 +169,8 @@ export class CdkPackageStack extends Stack {
         new route53.TxtRecord(this, 'api_domain_txt_record_spf', {
            zone: api_hosted_sub_zone,
            recordName: qwiz_api_zone_name,
-           values: ['v=spf1 -all'],
-           comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
+           values: ['####'],
+           comment: '######'
         });
 
         // creating text records for security
@@ -178,8 +178,8 @@ export class CdkPackageStack extends Stack {
         new route53.TxtRecord(this, 'api_domain_txt_record', {
            zone: api_hosted_sub_zone,
            recordName: '_dmarc.' + qwiz_api_zone_name,
-           values: ['v=DMARC1; p=reject; rua=mailto:report@dmarc.amazon.com; ruf=mailto:report@dmarc.amazon.com'],
-           comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
+           values: ['#######'],
+           comment: '#######'
         });
 
         new route53.ARecord(this, 'ApiARecord', {
@@ -244,8 +244,8 @@ export class CdkPackageStack extends Stack {
         new route53.TxtRecord(this, 'distribution_domain_txt_record_spf', {
            zone: distribution_hosted_sub_zone,
            recordName: qwiz_distribution_zone_name,
-           values: ['v=spf1 -all'],
-           comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
+           values: ['######'],
+           comment: '######'
         });
 
         // creating text records for security
@@ -253,8 +253,8 @@ export class CdkPackageStack extends Stack {
         new route53.TxtRecord(this, 'distribution_domain_txt_record', {
            zone: distribution_hosted_sub_zone,
            recordName: '_dmarc.' + qwiz_distribution_zone_name,
-           values: ['v=DMARC1; p=reject; rua=mailto:report@dmarc.amazon.com; ruf=mailto:report@dmarc.amazon.com'],
-           comment: 'https://w.amazon.com/bin/view/SuperNova/PreventEmailSpoofing/'
+           values: ['######'],
+           comment: '#####'
         });
 
         // Cloudfront: records

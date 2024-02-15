@@ -113,7 +113,7 @@ export class MonitoringStack extends cdk.Stack {
 
     protected readonly topic: Topic;
 
-    protected readonly email= "cullenge@amazon.co.uk"
+    protected readonly email= "#####"
 
     constructor(scope: Construct, id: string, props: MonitoringStackProps) {
         super(scope, id);

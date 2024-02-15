@@ -7,13 +7,11 @@ import {
     DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
 
-// import { marshall } from "@aws-sdk/util-dynamodb";
-
 const client = new DynamoDBClient({});
 
 const dynamo = DynamoDBDocumentClient.from(client);
 
-const tableName = "qwizgurus_interview_table";
+const tableName = "{tableName}";
 
 const dnsStage = process.env.DNS_STAGE ? process.env.DNS_STAGE : "";
 

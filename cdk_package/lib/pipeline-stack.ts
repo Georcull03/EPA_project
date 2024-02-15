@@ -10,9 +10,9 @@ export class QwizPipelineStack extends cdk.Stack {
 
         const constants = {
             stages: [
-                {name: "Alpha", accountId: "911742436812", region: "us-west-1", isProd: false},
-                {name: "Beta", accountId: "602709950483", region: "us-west-1", isProd: false},
-                {name: "Prod", accountId: "929483735452", region: "us-west-1", isProd: true}
+                {name: "Alpha", accountId: "{account1}", region: "us-west-1", isProd: false},
+                {name: "Beta", accountId: "{account2}", region: "us-west-1", isProd: false},
+                {name: "Prod", accountId: "{account}", region: "us-west-1", isProd: true}
             ]
         }
 
